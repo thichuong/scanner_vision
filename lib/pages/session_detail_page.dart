@@ -89,23 +89,20 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
           );
         }
 
-        String? saveFolder = await SettingsService.getSaveFolder();
-        if (saveFolder == null || saveFolder.isEmpty) {
-          saveFolder = '/storage/emulated/0/Download';
-        }
-
-        final filename =
+        final fileName =
             'ScannerVision_${DateTime.now().millisecondsSinceEpoch}.pdf';
-        final file = File('$saveFolder/$filename');
-        if (!await file.parent.exists()) {
-          await file.parent.create(recursive: true);
-        }
-        await file.writeAsBytes(bytes);
+        final savedPath = await PdfService.saveAndCopyPdf(bytes, fileName);
+
+        // Open the file immediately
+        await PdfService.openFile(savedPath);
 
         if (mounted) {
           Navigator.pop(context); // close loader
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Đã lưu PDF tại $saveFolder/$filename')),
+            SnackBar(
+              content: Text('Đã lưu và copy đường dẫn: $savedPath'),
+              backgroundColor: Colors.green,
+            ),
           );
         }
       } catch (e) {

@@ -1,9 +1,12 @@
 import 'dart:io';
-import 'dart:typed_data';
+// import 'dart:typed_data'; // Provided by services.dart
 import 'package:flutter/painting.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
+import 'package:open_filex/open_filex.dart';
+import 'settings_service.dart';
 
 class PdfService {
   static Future<Uint8List> generateCCCDPdfBytes(
@@ -141,5 +144,33 @@ class PdfService {
     );
     await file.writeAsBytes(bytes);
     return file;
+  }
+
+  static Future<String> saveAndCopyPdf(Uint8List bytes, String fileName) async {
+    String? saveFolder = await SettingsService.getSaveFolder();
+    if (saveFolder == null || saveFolder.isEmpty) {
+      if (Platform.isAndroid) {
+        saveFolder = '/storage/emulated/0/Download';
+      } else {
+        final dir = await getDownloadsDirectory();
+        saveFolder =
+            dir?.path ?? (await getApplicationDocumentsDirectory()).path;
+      }
+    }
+
+    final file = File('$saveFolder/$fileName');
+    if (!await file.parent.exists()) {
+      await file.parent.create(recursive: true);
+    }
+    await file.writeAsBytes(bytes);
+
+    // Copy path to clipboard
+    await Clipboard.setData(ClipboardData(text: file.path));
+
+    return file.path;
+  }
+
+  static Future<void> openFile(String path) async {
+    await OpenFilex.open(path);
   }
 }

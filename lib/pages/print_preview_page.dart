@@ -61,9 +61,25 @@ class PrintPreviewPage extends StatelessWidget {
                     imagePaths,
                   );
 
+              final fileName =
+                  'ScannerVision_${DateTime.now().millisecondsSinceEpoch}.pdf';
+              final savedPath = await PdfService.saveAndCopyPdf(bytes, fileName);
+
+              // Open the file immediately
+              await PdfService.openFile(savedPath);
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Đã lưu vào bộ nhớ và copy đường dẫn: $savedPath'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+
               await Printing.layoutPdf(
                 onLayout: (PdfPageFormat format) async => bytes,
-                name: 'scanner_vision_${DateTime.now().millisecondsSinceEpoch}',
+                name: fileName.replaceAll('.pdf', ''),
               );
             },
             icon: const Icon(Icons.print, size: 28),
