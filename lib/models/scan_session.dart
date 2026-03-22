@@ -27,11 +27,17 @@ class ScanSession {
 
   factory ScanSession.fromJson(Map<String, dynamic> json) {
     return ScanSession(
-      id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      id:
+          json['id'] as String? ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      date: json['date'] != null
+          ? DateTime.parse(json['date'])
+          : DateTime.now(),
       imagePaths: (json['imagePaths'] as List<dynamic>?)?.cast<String>() ?? [],
       type: json['type'] as String? ?? 'document',
-      cccdData: json['cccdData'] != null ? CCCDModel.fromJson(json['cccdData']) : null,
+      cccdData: json['cccdData'] != null
+          ? CCCDModel.fromJson(json['cccdData'])
+          : null,
     );
   }
 }

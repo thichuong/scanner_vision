@@ -7,7 +7,7 @@ class PrintPreviewPage extends StatelessWidget {
   final List<String> imagePaths;
   final bool isCccd;
   final bool isVertical;
-  
+
   const PrintPreviewPage({
     super.key,
     required this.imagePaths,
@@ -18,16 +18,20 @@ class PrintPreviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('In & Lưu PDF'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('In & Lưu PDF'), centerTitle: true),
       body: PdfPreview(
         build: (format) async {
           if (isCccd) {
-            return await PdfService.generateCCCDPdfBytes(format, imagePaths, isVertical: isVertical);
+            return await PdfService.generateCCCDPdfBytes(
+              format,
+              imagePaths,
+              isVertical: isVertical,
+            );
           } else {
-            return await PdfService.generateDocumentPdfBytes(format, imagePaths);
+            return await PdfService.generateDocumentPdfBytes(
+              format,
+              imagePaths,
+            );
           }
         },
         useActions: true,
@@ -36,7 +40,8 @@ class PrintPreviewPage extends StatelessWidget {
         allowPrinting: true,
         allowSharing: true,
         initialPageFormat: PdfPageFormat.a4,
-        pdfFileName: 'scanner_vision_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        pdfFileName:
+            'scanner_vision_${DateTime.now().millisecondsSinceEpoch}.pdf',
       ),
     );
   }

@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 
 class StorageService {
   static const String _fileName = 'scan_sessions.json';
-  
+
   // Singleton pattern
   static final StorageService _instance = StorageService._internal();
   factory StorageService() => _instance;
@@ -59,16 +59,16 @@ class StorageService {
       // 1b. Update CCCD data with new persistent paths
       CCCDModel? newCccdData = session.cccdData;
       if (newCccdData != null) {
-         newCccdData = CCCDModel(
-           id: newCccdData.id,
-           oldId: newCccdData.oldId,
-           fullName: newCccdData.fullName,
-           dob: newCccdData.dob,
-           gender: newCccdData.gender,
-           address: newCccdData.address,
-           issueDate: newCccdData.issueDate,
-           capturedImages: newImagePaths,
-         );
+        newCccdData = CCCDModel(
+          id: newCccdData.id,
+          oldId: newCccdData.oldId,
+          fullName: newCccdData.fullName,
+          dob: newCccdData.dob,
+          gender: newCccdData.gender,
+          address: newCccdData.address,
+          issueDate: newCccdData.issueDate,
+          capturedImages: newImagePaths,
+        );
       }
 
       // Update session with new permanent image paths
@@ -82,36 +82,35 @@ class StorageService {
 
       // 2. Read existing sessions
       final sessions = await getSessions();
-      
+
       // 3. Add new session and save
       sessions.insert(0, sessionToSave); // Add to beginning
-      
+
       final file = await _getFile();
       final jsonList = sessions.map((s) => s.toJson()).toList();
       await file.writeAsString(jsonEncode(jsonList));
-      
     } catch (e) {
       debugPrint('Error saving session: $e');
     }
   }
-  
+
   Future<void> deleteSession(String id) async {
     try {
       final sessions = await getSessions();
-      
+
       // Delete images
       try {
         final sessionToDelete = sessions.firstWhere((s) => s.id == id);
         for (final path in sessionToDelete.imagePaths) {
-           final file = File(path);
-           if (await file.exists()) {
-             await file.delete();
-           }
+          final file = File(path);
+          if (await file.exists()) {
+            await file.delete();
+          }
         }
       } catch (e) {
         // Session not found or error deleting files, ignore and continue removing from json
       }
-      
+
       // Remove from list and save
       sessions.removeWhere((s) => s.id == id);
       final file = await _getFile();

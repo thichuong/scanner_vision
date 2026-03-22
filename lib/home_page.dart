@@ -3,6 +3,7 @@ import 'scanner_service.dart';
 import 'models/scan_session.dart';
 import 'services/storage_service.dart';
 import 'pages/session_detail_page.dart';
+import 'pages/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -54,9 +55,23 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanner Vision', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Scanner Vision',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         elevation: 2,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: _buildBody(),
       floatingActionButton: Row(
@@ -96,7 +111,9 @@ class _HomePageState extends State<HomePage> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Không tìm thấy thông tin CCCD hoặc mã QR!')),
+          const SnackBar(
+            content: Text('Không tìm thấy thông tin CCCD hoặc mã QR!'),
+          ),
         );
       }
     }
@@ -112,13 +129,19 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.history, size: 80, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+            Icon(
+              Icons.history,
+              size: 80,
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
             Text(
               'Chưa có tài liệu nào.',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 8),
             const Text('Nhấn nút Scan bên dưới để bắt đầu.'),
@@ -133,21 +156,35 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context, index) {
         final session = _sessions[index];
         final isCccd = session.type == 'cccd';
-        
+
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             leading: CircleAvatar(
-              backgroundColor: isCccd ? Colors.blue.withValues(alpha: 0.2) : Colors.green.withValues(alpha: 0.2),
+              backgroundColor: isCccd
+                  ? Colors.blue.withValues(alpha: 0.2)
+                  : Colors.green.withValues(alpha: 0.2),
               child: Icon(
                 isCccd ? Icons.credit_card : Icons.document_scanner,
                 color: isCccd ? Colors.blue : Colors.green,
               ),
             ),
-            title: Text(isCccd ? 'CCCD - ${session.cccdData?.fullName ?? "Lỗi tên"}' : 'Tài Liệu Scan', style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('${session.imagePaths.length} ảnh - ${session.date.toString().substring(0, 16)}'),
+            title: Text(
+              isCccd
+                  ? 'CCCD - ${session.cccdData?.fullName ?? "Lỗi tên"}'
+                  : 'Tài Liệu Scan',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              '${session.imagePaths.length} ảnh - ${session.date.toString().substring(0, 16)}',
+            ),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.push(

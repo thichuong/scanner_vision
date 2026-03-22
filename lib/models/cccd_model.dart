@@ -69,7 +69,8 @@ class CCCDModel {
       gender: json['gender'] as String? ?? '',
       address: json['address'] as String? ?? '',
       issueDate: json['issueDate'] as String? ?? '',
-      capturedImages: (json['capturedImages'] as List<dynamic>?)?.cast<String>() ?? [],
+      capturedImages:
+          (json['capturedImages'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
 }
