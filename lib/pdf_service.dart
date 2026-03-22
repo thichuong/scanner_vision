@@ -1,10 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 
 class PdfService {
-  static Future<File> generateCCCDPdf(List<String> imagePaths, {bool isVertical = true}) async {
+  static Future<Uint8List> generateCCCDPdfBytes(PdfPageFormat format, List<String> imagePaths, {bool isVertical = true}) async {
     final pdf = pw.Document();
 
     final images = imagePaths.map((path) {
@@ -14,7 +15,7 @@ class PdfService {
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
+        pageFormat: format,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
           final children = images.map((img) {
@@ -41,13 +42,18 @@ class PdfService {
       ),
     );
 
+    return pdf.save();
+  }
+
+  static Future<File> generateCCCDPdf(List<String> imagePaths, {bool isVertical = true}) async {
+    final bytes = await generateCCCDPdfBytes(PdfPageFormat.a4, imagePaths, isVertical: isVertical);
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/cccd_scan_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    await file.writeAsBytes(await pdf.save());
+    await file.writeAsBytes(bytes);
     return file;
   }
 
-  static Future<File> generateDocumentPdf(List<String> imagePaths) async {
+  static Future<Uint8List> generateDocumentPdfBytes(PdfPageFormat format, List<String> imagePaths) async {
     final pdf = pw.Document();
 
     for (var path in imagePaths) {
@@ -56,7 +62,7 @@ class PdfService {
       
       pdf.addPage(
         pw.Page(
-          pageFormat: PdfPageFormat.a4,
+          pageFormat: format,
           margin: pw.EdgeInsets.zero,
           build: (pw.Context context) {
             return pw.Center(
@@ -67,9 +73,14 @@ class PdfService {
       );
     }
 
+    return pdf.save();
+  }
+
+  static Future<File> generateDocumentPdf(List<String> imagePaths) async {
+    final bytes = await generateDocumentPdfBytes(PdfPageFormat.a4, imagePaths);
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/doc_scan_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    await file.writeAsBytes(await pdf.save());
+    await file.writeAsBytes(bytes);
     return file;
   }
 }

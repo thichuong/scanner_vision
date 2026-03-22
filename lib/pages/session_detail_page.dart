@@ -1,11 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import '../models/scan_session.dart';
 import '../models/cccd_model.dart';
 import '../services/storage_service.dart';
-import '../pdf_service.dart';
+import 'print_preview_page.dart';
 
 class SessionDetailPage extends StatefulWidget {
   final ScanSession session;
@@ -40,30 +39,23 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
     );
   }
 
-  Future<void> _exportPdf({required bool isVertical}) async {
+  void _openPrintPreview({required bool isVertical}) {
     if (_currentSession.imagePaths.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Không có ảnh để tạo PDF!')),
       );
       return;
     }
-    try {
-      final isCccd = _currentSession.type == 'cccd';
-      final file = isCccd
-         ? await PdfService.generateCCCDPdf(
-            _currentSession.imagePaths,
-            isVertical: isVertical,
-          )
-         : await PdfService.generateDocumentPdf(_currentSession.imagePaths);
-         
-      await Share.shareXFiles([XFile(file.path)], text: isCccd ? 'CCCD PDF' : 'Document PDF');
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi khi tạo PDF: $e')),
-        );
-      }
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PrintPreviewPage(
+          imagePaths: _currentSession.imagePaths,
+          isCccd: _currentSession.type == 'cccd',
+          isVertical: isVertical,
+        ),
+      ),
+    );
   }
   
   void _deleteSession() async {
@@ -95,17 +87,17 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => _exportPdf(isVertical: true),
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text('Tạo PDF (Dọc)'),
+                      onPressed: () => _openPrintPreview(isVertical: true),
+                      icon: const Icon(Icons.print),
+                      label: const Text('In PDF (Dọc)'),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton.icon(
-                       onPressed: () => _exportPdf(isVertical: false),
-                       icon: const Icon(Icons.picture_as_pdf),
-                       label: const Text('Tạo PDF (Nang)'),
+                       onPressed: () => _openPrintPreview(isVertical: false),
+                       icon: const Icon(Icons.print),
+                       label: const Text('In PDF (Ngang)'),
                     ),
                   )
                 ]
@@ -113,9 +105,9 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                 children: [
                    Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => _exportPdf(isVertical: true),
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text('Lưu thành file PDF'),
+                      onPressed: () => _openPrintPreview(isVertical: true),
+                      icon: const Icon(Icons.print),
+                      label: const Text('Xem & In PDF'),
                     ),
                   )
                 ]
