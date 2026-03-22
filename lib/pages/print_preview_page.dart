@@ -77,13 +77,10 @@ class PrintPreviewPage extends StatelessWidget {
                 );
               }
 
-              await Printing.layoutPdf(
-                onLayout: (PdfPageFormat format) async => bytes,
-                name: fileName.replaceAll('.pdf', ''),
-              );
+              // Removed Printing.layoutPdf as requested
             },
-            icon: const Icon(Icons.print, size: 28),
-            label: const Text('IN TÀI LIỆU', style: TextStyle(fontSize: 18)),
+            icon: const Icon(Icons.picture_as_pdf, size: 28),
+            label: const Text('LƯU & MỞ PDF', style: TextStyle(fontSize: 18)),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
