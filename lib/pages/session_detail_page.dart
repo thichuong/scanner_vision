@@ -52,6 +52,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
     }
 
     final showPreview = await SettingsService.shouldShowPreview();
+    if (!mounted) return;
     if (showPreview) {
       if (mounted) {
         Navigator.push(
@@ -126,60 +127,65 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
   @override
   Widget build(BuildContext context) {
     final isCccd = _currentSession.type == 'cccd';
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          isCccd ? 'Chi tiết CCCD' : 'Chi tiết Tài Liệu',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.redAccent),
-            onPressed: () => _deleteSession(),
-          ),
-        ],
-      ),
       body: CustomScrollView(
         slivers: [
+          SliverAppBar.medium(
+            title: Text(
+              isCccd ? 'Chi tiết CCCD' : 'Chi tiết Tài liệu',
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                color: colorScheme.error,
+                onPressed: () => _deleteSession(),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: isCccd
-                  ? Row(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  if (isCccd)
+                    Row(
                       children: [
                         Expanded(
-                          child: OutlinedButton.icon(
+                          child: FilledButton.icon(
                             onPressed: () =>
                                 _openPrintPreview(isVertical: true),
-                            icon: const Icon(Icons.print),
+                            icon: const Icon(Icons.picture_as_pdf),
                             label: const Text('In PDF (Dọc)'),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () =>
                                 _openPrintPreview(isVertical: false),
-                            icon: const Icon(Icons.print),
+                            icon: const Icon(Icons.picture_as_pdf),
                             label: const Text('In PDF (Ngang)'),
                           ),
                         ),
                       ],
                     )
-                  : Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () =>
-                                _openPrintPreview(isVertical: true),
-                            icon: const Icon(Icons.print),
-                            label: const Text('Xem & In PDF'),
-                          ),
+                  else
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => _openPrintPreview(isVertical: true),
+                        icon: const Icon(Icons.picture_as_pdf),
+                        label: const Text('XEM & IN PDF'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                      ],
+                      ),
                     ),
+                ],
+              ),
             ),
           ),
           if (isCccd && _currentSession.cccdData != null)
@@ -247,7 +253,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                         Image.file(
                           File(path),
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
+                          errorBuilder: (ctx, error, stackTrace) =>
                               const Icon(Icons.broken_image),
                         ),
                         Positioned(

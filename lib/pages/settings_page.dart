@@ -41,28 +41,34 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cài đặt'), centerTitle: true),
-      body: ListView(
-        children: [
-          SwitchListTile(
-            title: const Text('Hiện màn hình xem trước (Print Preview)'),
-            subtitle: const Text(
-              'Tắt để tự động lưu PDF luôn, không cần hỏi qua màn hình preview',
-            ),
-            value: _showPreview,
-            onChanged: (val) async {
-              await SettingsService.setShowPreview(val);
-              setState(() {
-                _showPreview = val;
-              });
-            },
+      body: CustomScrollView(
+        slivers: [
+          const SliverAppBar.medium(
+            title: Text('Cài đặt'),
           ),
-          const Divider(),
-          ListTile(
-            title: const Text('Thư mục mặc định lưu PDF'),
-            subtitle: Text(_saveFolder ?? 'Mặc định (Downloads)'),
-            trailing: const Icon(Icons.folder_open),
-            onTap: _pickFolder,
+          SliverList(
+            delegate: SliverChildListDelegate([
+              SwitchListTile(
+                title: const Text('Hiện màn hình xem trước'),
+                subtitle: const Text(
+                  'Tắt để tự động lưu PDF luôn, không cần hỏi qua màn hình preview',
+                ),
+                value: _showPreview,
+                onChanged: (val) async {
+                  await SettingsService.setShowPreview(val);
+                  setState(() {
+                    _showPreview = val;
+                  });
+                },
+              ),
+              const Divider(indent: 16, endIndent: 16),
+              ListTile(
+                title: const Text('Thư mục mặc định lưu PDF'),
+                subtitle: Text(_saveFolder ?? 'Mặc định (Downloads)'),
+                trailing: const Icon(Icons.folder_open),
+                onTap: _pickFolder,
+              ),
+            ]),
           ),
         ],
       ),

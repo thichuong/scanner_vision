@@ -79,23 +79,6 @@ class PdfService {
       final isLandscape = decodedImage.width > decodedImage.height;
 
       // Force orientation based on image dimensions rather than what the UI (PdfPreview) provides
-      // format.portrait ensures a portrait layout before we optionally call .landscape
-      final pageFormat = isLandscape
-          ? format.portrait.landscape
-          : format.portrait;
-
-      print('📸 --- KIỂM TRA KHỔ GIẤY --- 📸');
-      print('Đường dẫn: $path');
-      print(
-        'Kích thước thật của ảnh: Rộng = ${decodedImage.width}, Cao = ${decodedImage.height}',
-      );
-      print(
-        'Kết luận ảnh: ${isLandscape ? "NGANG (Landscape)" : "DỌC (Portrait)"}',
-      );
-      print(
-        'Khổ PDF thiết lập: Rộng = ${pageFormat.width}, Cao = ${pageFormat.height}',
-      );
-      print('------------------------------');
 
       final img = pw.MemoryImage(bytes);
 
