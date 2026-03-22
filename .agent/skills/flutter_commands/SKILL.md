@@ -4,13 +4,24 @@ description: Essential commands and guidelines for developing Flutter apps using
 ---
 
 # Flutter Commands
-When working in this workspace, follow these specific instructions:
+When working in this workspace, follow these specific instructions for the Scanner Vision project:
 
 1. **Package Management**: Use the MCP tool `dart_pub` or terminal command `flutter pub add <package>` to add dependencies.
 2. **Code Quality**: Ensure the code is properly formatted before finishing a task. Use `dart_format` or `dart format .`.
-3. **Running the App**: To test, use the `launch_app` tool from the Dart MCP server or standard `flutter run` in the terminal for specific devices.
-4. **Code Generation**: If using packages like `freezed` or `json_serializable`, remember to run:
+3. **Running the App**: 
+   - Use `launch_app` or `flutter run`.
+   - **Lưu ý quan trọng**: ML Kit Document Scanner yêu cầu thiết bị thực và Google Play Services (trên Android). Không thể chạy tính năng quét trên Emulator.
+4. **Code Generation**: Khi thay đổi `CCCDModel` hoặc các model khác dùng `json_serializable`:
    ```bash
    dart run build_runner build --delete-conflicting-outputs
    ```
-5. **Testing**: Add unit tests in the `test/` directory and run them via `flutter test` or `run_tests` MCP tool to ensure stability.
+5. **Xử lý PDF & In ấn**: 
+   - Sử dụng `PdfService` để tạo PDF chuẩn A4.
+   - Luôn sử dụng `calculateScaling` (trong logic code) để đảm bảo ảnh không bị tràn lề.
+   - Khi debug layout PDF, có thể dùng `pdf_preview` package để hiển thị trực tiếp.
+6. **Quyền truy cập (Permissions)**:
+   - Đảm bảo `AndroidManifest.xml` và `Info.plist` đã khai báo quyền Camera và Gallery (Photos).
+   - Sử dụng thư mục `getApplicationDocumentsDirectory` để lưu trữ file lâu dài.
+7. **Testing**: 
+   - Thêm unit tests trong thư mục `test/`.
+   - Chạy test qua `flutter test` hoặc công cụ `run_tests` MCP.
