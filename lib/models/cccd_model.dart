@@ -46,4 +46,30 @@ class CCCDModel {
       capturedImages: images,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'oldId': oldId,
+      'fullName': fullName,
+      'dob': dob,
+      'gender': gender,
+      'address': address,
+      'issueDate': issueDate,
+      'capturedImages': capturedImages,
+    };
+  }
+
+  factory CCCDModel.fromJson(Map<String, dynamic> json) {
+    return CCCDModel(
+      id: json['id'] as String? ?? '',
+      oldId: json['oldId'] as String? ?? '',
+      fullName: json['fullName'] as String? ?? '',
+      dob: json['dob'] as String? ?? '',
+      gender: json['gender'] as String? ?? '',
+      address: json['address'] as String? ?? '',
+      issueDate: json['issueDate'] as String? ?? '',
+      capturedImages: (json['capturedImages'] as List<dynamic>?)?.cast<String>() ?? [],
+    );
+  }
 }

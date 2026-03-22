@@ -46,4 +46,30 @@ class PdfService {
     await file.writeAsBytes(await pdf.save());
     return file;
   }
+
+  static Future<File> generateDocumentPdf(List<String> imagePaths) async {
+    final pdf = pw.Document();
+
+    for (var path in imagePaths) {
+      final bytes = File(path).readAsBytesSync();
+      final img = pw.MemoryImage(bytes);
+      
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: pw.EdgeInsets.zero,
+          build: (pw.Context context) {
+            return pw.Center(
+               child: pw.Image(img, fit: pw.BoxFit.contain),
+            );
+          },
+        ),
+      );
+    }
+
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/doc_scan_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    await file.writeAsBytes(await pdf.save());
+    return file;
+  }
 }
