@@ -104,15 +104,44 @@ class PdfService {
           pageFormat: format.portrait,
           margin: pw.EdgeInsets.zero,
           build: (pw.Context context) {
-            pw.Widget child = pw.Image(img, fit: pw.BoxFit.contain);
-            // Rotate 90 degrees if landscape to fit on portrait page
+            final pageWidth = format.portrait.width;
+            final pageHeight = format.portrait.height;
+
+            double imgWidth = decodedImage.width.toDouble();
+            double imgHeight = decodedImage.height.toDouble();
+
+            double targetWidth = isLandscape ? pageHeight : pageWidth;
+            double targetHeight = isLandscape ? pageWidth : pageHeight;
+
+            // Tính toán tỷ lệ (scale) để fit hoàn toàn vào trang mà không bị tràn (tương đương contain)
+            double scaleX = targetWidth / imgWidth;
+            double scaleY = targetHeight / imgHeight;
+            double scale = scaleX < scaleY ? scaleX : scaleY;
+
+            double finalWidth = imgWidth * scale;
+            double finalHeight = imgHeight * scale;
+
             if (isLandscape) {
-              child = pw.Transform.rotateBox(
-                angle: 1.5707963268, // pi/2 radians
-                child: child,
+              return pw.Center(
+                child: pw.Transform.rotateBox(
+                  angle: 1.5707963268, // pi/2 radians
+                  unconstrained: true, // ignore portrait parent constraints before rotating
+                  child: pw.Container(
+                    width: finalWidth, // dùng kích thước đã tính toán chính xác
+                    height: finalHeight,
+                    child: pw.Image(img, fit: pw.BoxFit.fill),
+                  ),
+                ),
+              );
+            } else {
+              return pw.Center(
+                child: pw.Container(
+                  width: finalWidth,
+                  height: finalHeight,
+                  child: pw.Image(img, fit: pw.BoxFit.fill),
+                ),
               );
             }
-            return pw.Center(child: child);
           },
         ),
       );
