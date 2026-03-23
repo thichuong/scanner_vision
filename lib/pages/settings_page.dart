@@ -1,45 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import '../settings_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/settings_provider.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  bool _showPreview = true;
-  String? _saveFolder;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    final showPreview = await SettingsService.shouldShowPreview();
-    final folder = await SettingsService.getSaveFolder();
-    setState(() {
-      _showPreview = showPreview;
-      _saveFolder = folder;
-    });
-  }
-
-  Future<void> _pickFolder() async {
+  Future<void> _pickFolder(BuildContext context) async {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
     if (selectedDirectory != null) {
-      await SettingsService.setSaveFolder(selectedDirectory);
-      setState(() {
-        _saveFolder = selectedDirectory;
-      });
+      if (context.mounted) {
+        context.read<SettingsProvider>().setSaveFolder(selectedDirectory);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = context.watch<SettingsProvider>();
+    final showPreview = settingsProvider.showPreview;
+    final saveFolder = settingsProvider.saveFolder;
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -53,20 +34,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: const Text(
                   'Tắt để tự động lưu PDF luôn, không cần hỏi qua màn hình preview',
                 ),
-                value: _showPreview,
-                onChanged: (val) async {
-                  await SettingsService.setShowPreview(val);
-                  setState(() {
-                    _showPreview = val;
-                  });
+                value: showPreview,
+                onChanged: (val) {
+                  settingsProvider.setShowPreview(val);
                 },
               ),
               const Divider(indent: 16, endIndent: 16),
               ListTile(
                 title: const Text('Thư mục mặc định lưu PDF'),
-                subtitle: Text(_saveFolder ?? 'Mặc định (Downloads)'),
+                subtitle: Text(saveFolder ?? 'Mặc định (Downloads)'),
                 trailing: const Icon(Icons.folder_open),
-                onTap: _pickFolder,
+                onTap: () => _pickFolder(context),
               ),
             ]),
           ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../scanner_service.dart';
+import '../services/scanner_service.dart';
 import '../models/scan_session.dart';
 import '../models/cccd_model.dart';
 import 'scan_review_page.dart';

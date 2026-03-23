@@ -2,11 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
+import 'package:provider/provider.dart';
 import '../models/scan_session.dart';
 import '../models/cccd_model.dart';
-import '../services/storage_service.dart';
-import '../pdf_service.dart';
-import '../settings_service.dart';
+import '../services/pdf_service.dart';
+import '../providers/session_provider.dart';
+import '../providers/settings_provider.dart';
 import 'print_preview_page.dart';
 
 class SessionDetailPage extends StatefulWidget {
@@ -51,7 +52,8 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
       return;
     }
 
-    final showPreview = await SettingsService.shouldShowPreview();
+    final settingsProvider = context.read<SettingsProvider>();
+    final showPreview = settingsProvider.showPreview;
     if (!mounted) return;
     if (showPreview) {
       if (mounted) {
@@ -117,7 +119,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
   }
 
   void _deleteSession() async {
-    await StorageService().deleteSession(_currentSession.id);
+    await context.read<SessionProvider>().deleteSession(_currentSession.id);
     if (mounted) Navigator.pop(context);
   }
 

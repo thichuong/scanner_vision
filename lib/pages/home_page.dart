@@ -1,43 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'models/scan_session.dart';
-import 'services/storage_service.dart';
-import 'pages/session_detail_page.dart';
-import 'pages/settings_page.dart';
-import 'pages/scanner_page.dart';
+import 'package:provider/provider.dart';
+import '../models/scan_session.dart';
+import '../providers/session_provider.dart';
+import 'session_detail_page.dart';
+import 'settings_page.dart';
+import 'scanner_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  List<ScanSession> _sessions = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSessions();
-  }
-
-  Future<void> _loadSessions() async {
-    final sessions = await StorageService().getSessions();
-    setState(() {
-      _sessions = sessions;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> _scanDocument() async {
+  Future<void> _scanDocument(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -45,11 +19,13 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (result == true) {
-      _loadSessions();
+      if (context.mounted) {
+        context.read<SessionProvider>().loadSessions();
+      }
     }
   }
 
-  Future<void> _scanCCCD() async {
+  Future<void> _scanCCCD(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -57,19 +33,25 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (result == true) {
-      _loadSessions();
+      if (context.mounted) {
+        context.read<SessionProvider>().loadSessions();
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final sessionProvider = context.watch<SessionProvider>();
+    final sessions = sessionProvider.sessions;
+    final isLoading = sessionProvider.isLoading;
+
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _loadSessions,
+        onRefresh: () => sessionProvider.loadSessions(),
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            _buildSliverAppBar(),
+            _buildSliverAppBar(context),
             SliverPadding(
               padding: const EdgeInsets.only(
                 top: 16,
@@ -77,22 +59,22 @@ class _HomePageState extends State<HomePage> {
                 right: 16,
                 bottom: 120, // More bottom padding for the buttons
               ),
-              sliver: _isLoading
+              sliver: isLoading
                   ? const SliverFillRemaining(
                       child: Center(child: CircularProgressIndicator()),
                     )
-                  : _sessions.isEmpty
-                      ? _buildEmptyState()
-                      : _buildSessionList(),
+                  : sessions.isEmpty
+                      ? _buildEmptyState(context)
+                      : _buildSessionList(context, sessions),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomActionBar(),
+      bottomNavigationBar: _buildBottomActionBar(context),
     );
   }
 
-  Widget _buildBottomActionBar() {
+  Widget _buildBottomActionBar(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -117,7 +99,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(
             child: FilledButton.icon(
-              onPressed: _scanDocument,
+              onPressed: () => _scanDocument(context),
               icon: const Icon(Icons.document_scanner),
               label: const Text('Tài liệu'),
               style: FilledButton.styleFrom(
@@ -133,7 +115,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(width: 12),
           Expanded(
             child: FilledButton.icon(
-              onPressed: _scanCCCD,
+              onPressed: () => _scanCCCD(context),
               icon: const Icon(Icons.credit_card),
               label: const Text('CCCD'),
               style: FilledButton.styleFrom(
@@ -151,7 +133,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSliverAppBar() {
+  Widget _buildSliverAppBar(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return SliverAppBar.large(
@@ -211,7 +193,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return SliverFillRemaining(
       hasScrollBody: false,
       child: Center(
@@ -251,10 +233,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSessionList() {
+  Widget _buildSessionList(BuildContext context, List<ScanSession> sessions) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
-        final session = _sessions[index];
+        final session = sessions[index];
         final isCccd = session.type == 'cccd';
 
         return Card(
@@ -315,14 +297,18 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(
                   builder: (context) => SessionDetailPage(session: session),
                 ),
-              ).then((_) => _loadSessions());
+              ).then((_) {
+                if (context.mounted) {
+                  context.read<SessionProvider>().loadSessions();
+                }
+              });
             },
           ),
         ).animate().fadeIn(delay: (index * 100).ms).slideY(
               begin: 0.2,
               duration: 400.ms,
             );
-      }, childCount: _sessions.length),
+      }, childCount: sessions.length),
     );
   }
 

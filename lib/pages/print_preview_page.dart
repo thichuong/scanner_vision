@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
-import '../pdf_service.dart';
+import 'package:pdf/pdf.dart';
+import '../services/pdf_service.dart';
 
 class PrintPreviewPage extends StatelessWidget {
   final List<String> imagePaths;

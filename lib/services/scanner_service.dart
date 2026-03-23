@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'models/cccd_scan_result.dart';
+import '../models/cccd_scan_result.dart';
 
 class ScannerService {
   late DocumentScanner _documentScanner;

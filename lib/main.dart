@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'home_page.dart';
+import 'package:provider/provider.dart';
+import 'pages/home_page.dart';
+import 'providers/session_provider.dart';
+import 'providers/settings_provider.dart';
 
 void main() {
-  runApp(const ScannerVisionApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SessionProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+      ],
+      child: const ScannerVisionApp(),
+    ),
+  );
 }
 
 class ScannerVisionApp extends StatelessWidget {

@@ -6,34 +6,26 @@ Scanner Vision được thiết kế theo kiến trúc phân lớp nhằm chia t
 
 Ứng dụng tuân thủ mô hình 3 lớp cơ bản:
 
-1.  **UI Layer (Presentation)**: Các Flutter Widgets và Pages (Material 3). Đảm nhận việc hiển thị và tương tác với người dùng (Home, Scanner, Review, Session Detail).
-2.  **Service Layer (Business Logic)**: Các lớp Service chuyên biệt xử lý logic nghiệp vụ (Scanner, PDF, Storage, Settings).
-3.  **Infrastructure Layer (Data/External)**: ML Kit SDK, PDF Library, SharedPreferences, File System và Clipboard API.
+1.  **UI Layer (Presentation)**: Các Flutter Widgets và Pages (Material 3) trong `lib/pages/`.
+2.  **State Management Layer**: Sử dụng `Provider` để quản lý trạng thái tập trung (`lib/providers/`).
+3.  **Service Layer (Business Logic)**: Các lớp Service chuyên biệt trong `lib/services/`.
+4.  **Infrastructure Layer (Data/External)**: ML Kit SDK, PDF Library, SharedPreferences, File System.
 
 ## 🔄 Luồng dữ liệu chính
 
 ```mermaid
 graph TD
-    User((Người dùng)) --> UI[UI Layer]
-    UI --> SS[ScannerService]
-    UI --> PS[PdfService]
-    UI --> STS[StorageService]
+    User((Người dùng)) --> UI[UI Layer - lib/pages]
+    UI --> Prov[Providers - lib/providers]
+    Prov --> SS[ScannerService]
+    Prov --> PS[PdfService]
+    Prov --> STS[StorageService]
+    Prov --> STGS[SettingsService]
     
-    SS --> MLK[Google ML Kit Document Scanner]
-    SS --> BCD[Google ML Kit Barcode Scanning]
-    
+    SS --> MLK[Google ML Kit]
     PS --> PDFL[pdf Library]
-    PS --> CB[Clipboard API]
-    PS --> OPEN[Open File API]
-    
-    STS --> FS[File System - App Docs]
-    STS --> SP[Shared Preferences]
-    
-    subgraph "Tự động hóa PDF"
-        PS -- "1. Lưu file" --> FS_EXT["Storage: Pictures/Scanner Vision"]
-        PS -- "2. Copy Path" --> CB
-        PS -- "3. Mở file" --> OPEN
-    end
+    STS --> FS[File System]
+    STGS --> SP[Shared Preferences]
 ```
 
 ## 🧩 Các thành phần cốt lõi

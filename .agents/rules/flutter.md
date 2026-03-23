@@ -12,9 +12,14 @@ description: Flutter and Dart rules for this document scanner project
 - Assume mobile-first development (Android/iOS) with performance on physical devices as a top priority.
 
 ## 2. Architecture & Code Structure
-- **State Management**: Use robust state management (e.g., Provider, Riverpod, or BLoC) consistently. Do not mix patterns unless necessary.
-- **Widget Modularity**: Keep the `build` methods clean. Extract complex responsive UI into smaller, reusable UI components inside `lib/widgets/`.
-- **Business Logic**: Isolate business logic (ML Kit processing, file saving, storage management) from UI. Use repository or service classes (e.g., `lib/services/`).
+- **State Management**: Sử dụng `Provider` làm giải pháp quản lý trạng thái chính (`lib/providers/`). Luôn sử dụng `context.watch<T>()` để lắng nghe thay đổi và `context.read<T>()` để gọi các phương thức trong Provider.
+- **Folder Structure**: 
+    - `lib/pages/`: Chứa các màn hình UI.
+    - `lib/providers/`: Chứa các lớp `ChangeNotifier` quản lý trạng thái.
+    - `lib/services/`: Chứa các lớp logic độc lập (PDF, Scanner, Storage, Settings).
+    - `lib/models/`: Chứa các data models.
+- **Widget Modularity**: Giữ phương thức `build` ngắn gọn. Trích xuất UI phức tạp thành các widget nhỏ trong `lib/widgets/`.
+- **Business Logic**: Tách biệt logic kinh doanh ra khỏi UI bằng cách sử dụng Services và Providers.
 - **External APIs**: Use dedicated utility methods for Clipboard and File System operations to ensure consistency.
 
 ## 3. Tooling and Dependencies

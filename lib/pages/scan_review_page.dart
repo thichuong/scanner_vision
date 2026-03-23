@@ -3,10 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:pdf/pdf.dart';
+import 'package:provider/provider.dart';
 import '../models/scan_session.dart';
-import '../services/storage_service.dart';
-import '../pdf_service.dart';
-import '../settings_service.dart';
+import '../services/pdf_service.dart';
+import '../providers/session_provider.dart';
+import '../providers/settings_provider.dart';
 import 'print_preview_page.dart';
 
 class ScanReviewPage extends StatefulWidget {
@@ -33,7 +34,8 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
   bool _isSaving = false;
 
   Future<void> _exportPdf() async {
-    final showPreview = await SettingsService.shouldShowPreview();
+    final settingsProvider = context.read<SettingsProvider>();
+    final showPreview = settingsProvider.showPreview;
     if (!mounted) return;
 
     if (showPreview) {
@@ -99,7 +101,7 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
   Future<void> _saveToHistory() async {
     setState(() => _isSaving = true);
     try {
-      await StorageService().saveSession(widget.session);
+      await context.read<SessionProvider>().saveSession(widget.session);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
