@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'scanner_service.dart';
 import 'models/scan_session.dart';
-import 'models/cccd_model.dart';
 import 'services/storage_service.dart';
 import 'pages/session_detail_page.dart';
 import 'pages/settings_page.dart';
-import 'pages/scan_review_page.dart';
+import 'pages/scanner_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ScannerService _scannerService = ScannerService();
   List<ScanSession> _sessions = [];
   bool _isLoading = true;
 
@@ -37,77 +34,31 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _scannerService.dispose();
     super.dispose();
   }
 
   Future<void> _scanDocument() async {
-    final result = await _scannerService.scanDocument();
-    if (result != null && result.images != null && result.images!.isNotEmpty) {
-      final session = ScanSession(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        date: DateTime.now(),
-        imagePaths: result.images!,
-        type: 'document',
-      );
-
-      _showReviewPage(session);
-    }
-  }
-
-  Future<void> _scanCCCD({List<String>? initialImages}) async {
-    final result = await _scannerService.scanCCCD(initialImages: initialImages);
-
-    if (result == null) {
-      if (initialImages == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Hủy quét CCCD.')),
-        );
-      }
-      return;
-    }
-
-    if (result.images.isNotEmpty) {
-      final session = ScanSession(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        date: DateTime.now(),
-        imagePaths: result.images,
-        type: 'cccd',
-        cccdData: result.qrData != null
-            ? CCCDModel.fromQR(result.qrData!, images: result.images)
-            : null,
-      );
-
-      final reviewResult = await _showReviewPage(session);
-
-      // Nếu Review Page yêu cầu quét thêm (nút NEXT khi chưa đủ 2 ảnh)
-      if (reviewResult == 'scanMore') {
-        _scanCCCD(initialImages: result.images);
-      } else if (reviewResult == true) {
-        _loadSessions();
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Vui lòng quét đủ 2 mặt. Yêu cầu có mặt chứa mã QR và mặt chân dung!',
-            ),
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<dynamic> _showReviewPage(ScanSession session) async {
-    if (!mounted) return null; // Return null if not mounted to avoid issues
-    return await Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ScanReviewPage(session: session),
+        builder: (context) => const ScannerPage(scanType: 'document'),
       ),
     );
+    if (result == true) {
+      _loadSessions();
+    }
+  }
+
+  Future<void> _scanCCCD() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ScannerPage(scanType: 'cccd'),
+      ),
+    );
+    if (result == true) {
+      _loadSessions();
+    }
   }
 
   @override

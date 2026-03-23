@@ -11,8 +11,19 @@ import 'print_preview_page.dart';
 
 class ScanReviewPage extends StatefulWidget {
   final ScanSession session;
+  final bool isEmbedded;
+  final VoidCallback? onScanMore;
+  final VoidCallback? onDone;
+  final VoidCallback? onCancel;
 
-  const ScanReviewPage({super.key, required this.session});
+  const ScanReviewPage({
+    super.key,
+    required this.session,
+    this.isEmbedded = false,
+    this.onScanMore,
+    this.onDone,
+    this.onCancel,
+  });
 
   @override
   State<ScanReviewPage> createState() => _ScanReviewPageState();
@@ -26,7 +37,7 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
     if (!mounted) return;
 
     if (showPreview) {
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PrintPreviewPage(
@@ -36,6 +47,8 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
           ),
         ),
       );
+      // After preview, if we are embedded and the user wants to be done, we could call onDone.
+      // But usually export handles its own flow.
     } else {
       setState(() => _isSaving = true);
       try {
@@ -67,6 +80,9 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
               backgroundColor: Colors.green,
             ),
           );
+          if (widget.isEmbedded && widget.onDone != null) {
+            widget.onDone!();
+          }
         }
       } catch (e) {
         if (mounted) {
@@ -91,7 +107,11 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, true); // Return true to indicate saved
+        if (widget.isEmbedded && widget.onDone != null) {
+          widget.onDone!();
+        } else {
+          Navigator.pop(context, true); // Return true to indicate saved
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -111,10 +131,15 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kiểm tra kết quả'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: widget.isEmbedded
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onCancel,
+              )
+            : IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
       ),
       body: Column(
         children: [
@@ -165,7 +190,16 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
                     
                     if (isPartialCccd) {
                       return ElevatedButton.icon(
-                        onPressed: _isSaving ? null : () => Navigator.pop(context, 'scanMore'),
+                        onPressed: _isSaving
+                            ? null
+                            : () {
+                                if (widget.isEmbedded &&
+                                    widget.onScanMore != null) {
+                                  widget.onScanMore!();
+                                } else {
+                                  Navigator.pop(context, 'scanMore');
+                                }
+                              },
                         icon: const Icon(Icons.arrow_forward),
                         label: const Text('TIẾP THEO (QUÉT MẶT 2)'),
                         style: ElevatedButton.styleFrom(
@@ -199,7 +233,11 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
                 ).animate().slideY(begin: 0.3, duration: 500.ms).fade(),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: _isSaving ? null : () => Navigator.pop(context),
+                  onPressed: _isSaving
+                      ? null
+                      : (widget.isEmbedded && widget.onCancel != null
+                          ? widget.onCancel
+                          : () => Navigator.pop(context)),
                   child: const Text('Hủy bỏ'),
                 ),
               ],
