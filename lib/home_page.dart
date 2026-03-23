@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'scanner_service.dart';
 import 'models/scan_session.dart';
+import 'models/cccd_model.dart';
 import 'services/storage_service.dart';
 import 'pages/session_detail_page.dart';
 import 'pages/settings_page.dart';
@@ -54,41 +55,59 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _scanCCCD() async {
-    final result = await _scannerService.scanCCCD();
-    if (result != null) {
+  Future<void> _scanCCCD({List<String>? initialImages}) async {
+    final result = await _scannerService.scanCCCD(initialImages: initialImages);
+
+    if (result == null) {
+      if (initialImages == null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hủy quét CCCD.')),
+        );
+      }
+      return;
+    }
+
+    if (result.images.isNotEmpty) {
       final session = ScanSession(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         date: DateTime.now(),
-        imagePaths: result.capturedImages,
+        imagePaths: result.images,
         type: 'cccd',
-        cccdData: result,
+        cccdData: result.qrData != null
+            ? CCCDModel.fromQR(result.qrData!, images: result.images)
+            : null,
       );
 
-      _showReviewPage(session);
+      final reviewResult = await _showReviewPage(session);
+
+      // Nếu Review Page yêu cầu quét thêm (nút NEXT khi chưa đủ 2 ảnh)
+      if (reviewResult == 'scanMore') {
+        _scanCCCD(initialImages: result.images);
+      } else if (reviewResult == true) {
+        _loadSessions();
+      }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Không tìm thấy thông tin CCCD hoặc mã QR!'),
+            content: Text(
+              'Vui lòng quét đủ 2 mặt. Yêu cầu có mặt chứa mã QR và mặt chân dung!',
+            ),
+            duration: Duration(seconds: 4),
           ),
         );
       }
     }
   }
 
-  void _showReviewPage(ScanSession session) async {
-    if (!mounted) return;
-    final saved = await Navigator.push<bool>(
+  Future<dynamic> _showReviewPage(ScanSession session) async {
+    if (!mounted) return null; // Return null if not mounted to avoid issues
+    return await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ScanReviewPage(session: session),
       ),
     );
-
-    if (saved == true) {
-      _loadSessions();
-    }
   }
 
   @override

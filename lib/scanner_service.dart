@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
-import 'models/cccd_model.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'models/cccd_scan_result.dart';
 
 class ScannerService {
   late DocumentScanner _documentScanner;
@@ -30,45 +31,80 @@ class ScannerService {
     }
   }
 
-  Future<CCCDModel?> scanCCCD() async {
+  Future<CCCDScanResult?> scanCCCD({List<String>? initialImages}) async {
     try {
+      final currentImages = initialImages ?? <String>[];
+      final remainingPages = 2 - currentImages.length;
+
+      if (remainingPages <= 0) {
+        // Already have 2 or more images, just validate
+        return _validateImages(currentImages);
+      }
+
       final options = DocumentScannerOptions(
         documentFormats: const {DocumentFormat.jpeg},
         mode: ScannerMode.full,
-        pageLimit: 2, // Quét tối đa 2 mặt
+        pageLimit: remainingPages,
         isGalleryImport: true,
       );
       final cccdScanner = DocumentScanner(options: options);
       final result = await cccdScanner.scanDocument();
       cccdScanner.close();
 
-      final images = result.images;
-      if (images == null || images.isEmpty) {
+      final newImages = result.images;
+      final totalImages = <String>[...currentImages, ...?newImages];
+
+      if (totalImages.isEmpty) {
         return null;
       }
 
-      final barcodeScanner = BarcodeScanner();
-
-      // Duyệt qua tất cả các ảnh đã quét (có thể là 1 hoặc 2 mặt)
-      for (final imagePath in images) {
-        final inputImage = InputImage.fromFilePath(imagePath);
-        final barcodes = await barcodeScanner.processImage(inputImage);
-
-        for (Barcode barcode in barcodes) {
-          final String? rawValue = barcode.rawValue;
-          if (rawValue != null && rawValue.contains('|')) {
-            await barcodeScanner.close();
-            return CCCDModel.fromQR(rawValue, images: images);
-          }
-        }
-      }
-
-      await barcodeScanner.close();
-      return null;
+      return _validateImages(totalImages);
     } catch (e) {
       debugPrint('Error scanning CCCD: $e');
       return null;
     }
+  }
+
+  Future<CCCDScanResult> _validateImages(List<String> images) async {
+    final barcodeScanner = BarcodeScanner();
+    final faceDetector = FaceDetector(options: FaceDetectorOptions());
+
+    String? qrData;
+    bool hasFace = false;
+
+    for (final imagePath in images) {
+      final inputImage = InputImage.fromFilePath(imagePath);
+
+      if (qrData == null) {
+        final barcodes = await barcodeScanner.processImage(inputImage);
+        for (Barcode barcode in barcodes) {
+          final String? rawValue = barcode.rawValue;
+          if (rawValue != null && rawValue.contains('|')) {
+            qrData = rawValue;
+            break;
+          }
+        }
+      }
+
+      if (!hasFace) {
+        final faces = await faceDetector.processImage(inputImage);
+        if (faces.isNotEmpty) {
+          hasFace = true;
+        }
+      }
+    }
+
+    await barcodeScanner.close();
+    await faceDetector.close();
+
+    final bool isComplete = images.length >= 2 && qrData != null && hasFace;
+
+    return CCCDScanResult(
+      images: images,
+      qrData: qrData,
+      hasFace: hasFace,
+      isComplete: isComplete,
+    );
   }
 
   void dispose() {

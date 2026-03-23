@@ -158,15 +158,35 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
-                ElevatedButton.icon(
-                  onPressed: _isSaving ? null : _exportPdf,
-                  icon: const Icon(Icons.picture_as_pdf),
-                  label: const Text('XUẤT PDF NGAY'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: colorScheme.primaryContainer,
-                    foregroundColor: colorScheme.onPrimaryContainer,
-                  ),
+                Builder(
+                  builder: (context) {
+                    final isCccd = widget.session.type == 'cccd';
+                    final isPartialCccd = isCccd && widget.session.imagePaths.length < 2;
+                    
+                    if (isPartialCccd) {
+                      return ElevatedButton.icon(
+                        onPressed: _isSaving ? null : () => Navigator.pop(context, 'scanMore'),
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text('TIẾP THEO (QUÉT MẶT 2)'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                        ),
+                      );
+                    }
+                    
+                    return ElevatedButton.icon(
+                      onPressed: _isSaving ? null : _exportPdf,
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('XUẤT PDF NGAY'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: colorScheme.primaryContainer,
+                        foregroundColor: colorScheme.onPrimaryContainer,
+                      ),
+                    );
+                  },
                 ).animate().slideY(begin: 0.2, duration: 400.ms).fade(),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
