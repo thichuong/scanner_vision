@@ -14,7 +14,8 @@ description: Flutter and Dart rules for this document scanner project
 ## 2. Architecture & Code Structure
 - **State Management**: Use robust state management (e.g., Provider, Riverpod, or BLoC) consistently. Do not mix patterns unless necessary.
 - **Widget Modularity**: Keep the `build` methods clean. Extract complex responsive UI into smaller, reusable UI components inside `lib/widgets/`.
-- **Business Logic**: Isolate business logic (ML Kit processing, file saving) from UI. Use repository or service classes (e.g., `lib/services/`).
+- **Business Logic**: Isolate business logic (ML Kit processing, file saving, storage management) from UI. Use repository or service classes (e.g., `lib/services/`).
+- **External APIs**: Use dedicated utility methods for Clipboard and File System operations to ensure consistency.
 
 ## 3. Tooling and Dependencies
 - **MCP server**: Whenever possible, use Dart toolset provided by the `dart-mcp-server` (e.g., `dart_pub`, `dart_format`, `dart_analyze`, `launch_app`).
@@ -29,3 +30,14 @@ description: Flutter and Dart rules for this document scanner project
 - Prefer concise, actionable explanations.
 - Speak in Vietnamese by default in conversations, or bilingual (Vietnamese chat + English code comments).
 - Commit messages must be clear, indicating what changed and why.
+
+## 6. **Quyền truy cập (Permissions)**:
+   - Đảm bảo `AndroidManifest.xml` và `Info.plist` đã khai báo quyền Camera và Gallery/Storage.
+   - Sử dụng thư mục `getApplicationDocumentsDirectory` để lưu trữ file lâu dài của ứng dụng.
+   - Các file PDF xuất bản được lưu tập trung trong `Pictures/Scanner Vision`.
+## 7. **Tự động hóa (Automation)**:
+   - Sử dụng `PdfService.saveAndCopyPdf` để lưu file và copy đường dẫn vào Clipboard trong một bước.
+   - Dùng `PdfService.openFile` để kích hoạt trình xem file hệ thống sau khi lưu thành công.
+## 8. **Testing**:
+   - Thêm unit tests trong thư mục `test/`.
+   - Chạy test qua `flutter test` hoặc công cụ `run_tests` MCP.

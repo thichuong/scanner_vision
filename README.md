@@ -5,15 +5,19 @@ Scanner Vision là một ứng dụng Flutter chuyên nghiệp dùng để quét
 ## 🌟 Tính năng chính
 
 - **Quét tài liệu thông minh**: Tự động phát hiện cạnh, căn chỉnh và cắt tài liệu bằng Google ML Kit Document Scanner API.
-- **Quét CCCD (ID Card)**: 
+- **Quét CCCD (ID Card) tối ưu**: 
   - Tích hợp quét mã QR để trích xuất thông tin tự động (Họ tên, ngày sinh, số định danh, ...).
-  - Ghép 2 mặt CCCD vào một trang A4 duy nhất để thuận tiện cho việc in ấn/photo.
-- **Xuất PDF chuyên nghiệp**:
-  - Hỗ trợ xuất file PDF khổ A4 chuẩn.
-  - Tự động thay đổi hướng trang (Xoay trang) dựa trên kích thước ảnh gốc.
-  - Thuật toán Scale thông minh đảm bảo nội dung luôn hiển thị trọn vẹn trong trang giấy (Fit-to-page).
-- **Quản lý lịch sử**: Lưu trữ và quản lý các phiên quét (Sessions) một cách khoa học.
-- **Cài đặt linh hoạt**: Tùy chỉnh nơi lưu trữ, xem trước bản in và giao diện (Sáng/Tối).
+  - Quy trình quét 2 mặt mượt mà, chuyển tiếp trực tiếp giữa các mặt quét.
+  - Ghép 2 mặt CCCD vào một trang A4 duy nhất (Hỗ trợ cả hướng Dọc và Ngang).
+- **Tự động hóa PDF & In ấn**:
+  - Hỗ trợ xuất file PDF khổ A4 chuẩn với thuật toán Fit-to-page thông minh.
+  - **Tự động lưu**: File PDF được lưu vào thư mục `Pictures/Scanner Vision` trên thiết bị.
+  - **Copy Path**: Tự động copy đường dẫn file đã lưu vào Clipboard.
+  - **Mở file tức thì**: Tự động mở file PDF bằng ứng dụng mặc định ngay sau khi tạo.
+- **Quản lý lịch sử chuyên nghiệp**: 
+  - Lưu và quản lý các phiên quét (Sessions) trong thư mục tài liệu ứng dụng.
+  - Xem chi tiết hình ảnh, copy thông tin dữ liệu (đối với CCCD) và thực hiện in lại bất cứ lúc nào.
+- **Cài đặt cá nhân hóa**: Tùy chỉnh bật/tắt xem trước bản in, vị trí lưu trữ và chế độ Dark Mode.
 
 ## 🛠 Công nghệ sử dụng
 
