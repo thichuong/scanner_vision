@@ -21,11 +21,13 @@ graph TD
     Prov --> PS[PdfService]
     Prov --> STS[StorageService]
     Prov --> STGS[SettingsService]
+    Prov --> CS[ClipboardService]
     
     SS --> MLK[Google ML Kit]
     PS --> PDFL[pdf Library]
     STS --> FS[File System]
     STGS --> SP[Shared Preferences]
+    CS --> CP[System Clipboard]
 ```
 
 ## 🧩 Các thành phần cốt lõi
@@ -54,6 +56,11 @@ Quản lý việc lưu trữ tệp tin và các phiên làm việc (Sessions).
 Quản lý cấu hình ứng dụng thông qua `shared_preferences`.
 - Bật/tắt chế độ xem trước khi in.
 - Cấu hình đường dẫn lưu trữ mặc định.
+
+### 5. ClipboardService
+Cung cấp khả năng tương tác với Clipboard của hệ thống.
+- **Auto-copy**: Tự động sao chép dữ liệu hình ảnh (Binary) ngay sau khi có kết quả quét.
+- **Platform Bridging**: Sử dụng `pasteboard` và `FileProvider` (Android) để đảm bảo hình ảnh được chia sẻ an toàn và tương thích với nhiều ứng dụng.
 
 ## 📄 Định dạng dữ liệu
 

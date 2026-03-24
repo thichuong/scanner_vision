@@ -5,7 +5,8 @@ import 'pages/home_page.dart';
 import 'providers/session_provider.dart';
 import 'providers/settings_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [

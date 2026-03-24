@@ -5,7 +5,10 @@ Scanner Vision là một ứng dụng Flutter chuyên nghiệp dùng để quét
 ## 🌟 Tính năng chính
 
 - **Quét tài liệu thông minh**: Tự động phát hiện cạnh, căn chỉnh và cắt tài liệu bằng Google ML Kit Document Scanner API.
-- **Quét CCCD (ID Card) tối ưu**: 
+- **Tự động sao chép hình ảnh**: 
+  - Ngay sau khi scan thành công, ảnh kết quả được tự động đưa vào Clipboard hệ thống.
+  - Hỗ trợ dán trực tiếp vào các ứng dụng chat (Zalo, Messenger, v.v.) hoặc trình chỉnh sửa ảnh.
+- **Ghép và xuất tài liệu CCCD**:
   - Tích hợp quét mã QR để trích xuất thông tin tự động (Họ tên, ngày sinh, số định danh, ...).
   - Quy trình quét 2 mặt mượt mà, chuyển tiếp trực tiếp giữa các mặt quét.
   - Ghép 2 mặt CCCD vào một trang A4 duy nhất (Hỗ trợ cả hướng Dọc và Ngang).

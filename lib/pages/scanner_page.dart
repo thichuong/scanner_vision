@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/scanner_service.dart';
 import '../models/scan_session.dart';
 import '../models/cccd_model.dart';
+import '../services/clipboard_service.dart';
 import 'scan_review_page.dart';
 
 class ScannerPage extends StatefulWidget {
@@ -51,6 +52,17 @@ class _ScannerPageState extends State<ScannerPage> {
             type: 'document',
           );
         });
+        // Auto-copy to clipboard
+        await ClipboardService.copyImagesToClipboard(result.images!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đã tự động copy ảnh vào clipboard!'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       } else if (_currentSession == null && mounted) {
         Navigator.pop(context); // Cancel entire process if first scan failed
       }
@@ -68,6 +80,17 @@ class _ScannerPageState extends State<ScannerPage> {
                 : null,
           );
         });
+        // Auto-copy to clipboard
+        await ClipboardService.copyImagesToClipboard(result.images);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đã tự động copy ảnh CCCD vào clipboard!'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       } else if (initialImages == null && _currentSession == null && mounted) {
         Navigator.pop(context); // Cancel entire process if first scan failed
       }

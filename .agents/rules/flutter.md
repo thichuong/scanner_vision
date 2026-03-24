@@ -16,7 +16,7 @@ description: Flutter and Dart rules for this document scanner project
 - **Folder Structure**: 
     - `lib/pages/`: Chứa các màn hình UI.
     - `lib/providers/`: Chứa các lớp `ChangeNotifier` quản lý trạng thái.
-    - `lib/services/`: Chứa các lớp logic độc lập (PDF, Scanner, Storage, Settings).
+    - `lib/services/`: Chứa các lớp logic độc lập (PDF, Scanner, Storage, Settings, Clipboard).
     - `lib/models/`: Chứa các data models.
 - **Widget Modularity**: Giữ phương thức `build` ngắn gọn. Trích xuất UI phức tạp thành các widget nhỏ trong `lib/widgets/`.
 - **Business Logic**: Tách biệt logic kinh doanh ra khỏi UI bằng cách sử dụng Services và Providers.
@@ -43,6 +43,8 @@ description: Flutter and Dart rules for this document scanner project
 ## 7. **Tự động hóa (Automation)**:
    - Sử dụng `PdfService.saveAndCopyPdf` để lưu file và copy đường dẫn vào Clipboard trong một bước.
    - Dùng `PdfService.openFile` để kích hoạt trình xem file hệ thống sau khi lưu thành công.
+   - Sử dụng `ClipboardService.copyImagesToClipboard` để tự động copy ảnh scan vào clipboard dưới dạng binary (ngay sau khi scan).
+   - **Lưu ý Android**: `AndroidManifest.xml` phải cấu hình `FileProvider` với authority `${applicationId}.provider` để `pasteboard` hoạt động chính xác.
 ## 8. **Testing**:
    - Thêm unit tests trong thư mục `test/`.
    - Chạy test qua `flutter test` hoặc công cụ `run_tests` MCP.
