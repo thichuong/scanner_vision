@@ -15,8 +15,8 @@ description: Flutter and Dart rules for this document scanner project
 - **State Management**: Sử dụng `Provider` làm giải pháp quản lý trạng thái chính (`lib/providers/`). Luôn sử dụng `context.watch<T>()` để lắng nghe thay đổi và `context.read<T>()` để gọi các phương thức trong Provider.
 - **Folder Structure**: 
     - `lib/pages/`: Chứa các màn hình UI.
-    - `lib/providers/`: Chứa các lớp `ChangeNotifier` quản lý trạng thái.
-    - `lib/services/`: Chứa các lớp logic độc lập (PDF, Scanner, Storage, Settings, Clipboard).
+    - `lib/providers/`: Chứa các lớp `ChangeNotifier` quản lý trạng thái (`SettingsProvider`, `SessionProvider`).
+    - `lib/services/`: Chứa các lớp logic độc lập (`PdfService`, `ScannerService`, `StorageService`, `SettingsService`, `ClipboardService`, `GalleryService`).
     - `lib/models/`: Chứa các data models.
 - **Widget Modularity**: Giữ phương thức `build` ngắn gọn. Trích xuất UI phức tạp thành các widget nhỏ trong `lib/widgets/`.
 - **Business Logic**: Tách biệt logic kinh doanh ra khỏi UI bằng cách sử dụng Services và Providers.
@@ -37,13 +37,14 @@ description: Flutter and Dart rules for this document scanner project
 - Commit messages must be clear, indicating what changed and why.
 
 ## 6. **Quyền truy cập (Permissions)**:
-   - Đảm bảo `AndroidManifest.xml` và `Info.plist` đã khai báo quyền Camera và Gallery/Storage.
+   - Đảm bảo `AndroidManifest.xml` và `Info.plist` đã khai báo quyền Camera, Gallery (Photos), và Storage.
    - Sử dụng thư mục `getApplicationDocumentsDirectory` để lưu trữ file lâu dài của ứng dụng.
    - Các file PDF xuất bản được lưu tập trung trong `Pictures/Scanner Vision`.
 ## 7. **Tự động hóa (Automation)**:
-   - Sử dụng `PdfService.saveAndCopyPdf` để lưu file và copy đường dẫn vào Clipboard trong một bước.
+   - Sử dụng `PdfService.saveAndCopyPdf` để lưu file và copy đường dẫn vào Clipboard trong một bước (tuân thủ `SettingsProvider`).
    - Dùng `PdfService.openFile` để kích hoạt trình xem file hệ thống sau khi lưu thành công.
-   - Sử dụng `ClipboardService.copyImagesToClipboard` để tự động copy ảnh scan vào clipboard dưới dạng binary (ngay sau khi scan).
+   - Sử dụng `ClipboardService.copyImagesToClipboard` (từ `pasteboard`) để tự động copy ảnh scan vào clipboard dưới dạng binary.
+   - Sử dụng `GalleryService.saveImagesToGallery` (từ `gal`) để tự động lưu ảnh vào thư viện thiết bị.
    - **Lưu ý Android**: `AndroidManifest.xml` phải cấu hình `FileProvider` với authority `${applicationId}.provider` để `pasteboard` hoạt động chính xác.
 ## 8. **Testing**:
    - Thêm unit tests trong thư mục `test/`.

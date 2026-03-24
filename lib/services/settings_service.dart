@@ -4,6 +4,8 @@ class SettingsService {
   static const String _keyShowPreview = 'show_print_preview';
   static const String _keySaveFolder = 'save_folder_path';
   static const String _keySaveToGallery = 'save_to_gallery';
+  static const String _keySaveImageToClipboard = 'save_image_to_clipboard';
+  static const String _keySavePdfPathToClipboard = 'save_pdf_path_to_clipboard';
 
   static Future<bool> shouldShowPreview() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,5 +35,25 @@ class SettingsService {
   static Future<void> setSaveToGallery(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keySaveToGallery, value);
+  }
+
+  static Future<bool> shouldSaveImageToClipboard() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keySaveImageToClipboard) ?? true;
+  }
+
+  static Future<void> setSaveImageToClipboard(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keySaveImageToClipboard, value);
+  }
+
+  static Future<bool> shouldSavePdfPathToClipboard() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keySavePdfPathToClipboard) ?? false;
+  }
+
+  static Future<void> setSavePdfPathToClipboard(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keySavePdfPathToClipboard, value);
   }
 }

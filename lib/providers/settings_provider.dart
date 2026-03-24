@@ -5,10 +5,14 @@ class SettingsProvider extends ChangeNotifier {
   bool _showPreview = true;
   String? _saveFolder;
   bool _saveToGallery = true;
+  bool _saveImageToClipboard = true;
+  bool _savePdfPathToClipboard = false;
 
   bool get showPreview => _showPreview;
   String? get saveFolder => _saveFolder;
   bool get saveToGallery => _saveToGallery;
+  bool get saveImageToClipboard => _saveImageToClipboard;
+  bool get savePdfPathToClipboard => _savePdfPathToClipboard;
 
   SettingsProvider() {
     _loadSettings();
@@ -18,6 +22,8 @@ class SettingsProvider extends ChangeNotifier {
     _showPreview = await SettingsService.shouldShowPreview();
     _saveFolder = await SettingsService.getSaveFolder();
     _saveToGallery = await SettingsService.shouldSaveToGallery();
+    _saveImageToClipboard = await SettingsService.shouldSaveImageToClipboard();
+    _savePdfPathToClipboard = await SettingsService.shouldSavePdfPathToClipboard();
     notifyListeners();
   }
 
@@ -36,6 +42,18 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setSaveToGallery(bool value) async {
     await SettingsService.setSaveToGallery(value);
     _saveToGallery = value;
+    notifyListeners();
+  }
+
+  Future<void> setSaveImageToClipboard(bool value) async {
+    await SettingsService.setSaveImageToClipboard(value);
+    _saveImageToClipboard = value;
+    notifyListeners();
+  }
+
+  Future<void> setSavePdfPathToClipboard(bool value) async {
+    await SettingsService.setSavePdfPathToClipboard(value);
+    _savePdfPathToClipboard = value;
     notifyListeners();
   }
 }

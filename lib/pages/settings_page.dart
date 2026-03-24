@@ -40,6 +40,32 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
               const Divider(indent: 16, endIndent: 16),
+              SwitchListTile(
+                title: const Text('Lưu ảnh vào Thư viện'),
+                subtitle: const Text('Tự động lưu ảnh scan vào Gallery/Photos'),
+                value: settingsProvider.saveToGallery,
+                onChanged: (val) {
+                  settingsProvider.setSaveToGallery(val);
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Lưu ảnh vào Clipboard'),
+                subtitle: const Text('Copy ảnh vào bộ nhớ tạm ngay sau khi scan'),
+                value: settingsProvider.saveImageToClipboard,
+                onChanged: (val) {
+                  settingsProvider.setSaveImageToClipboard(val);
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Lưu đường dẫn PDF vào Clipboard'),
+                subtitle:
+                    const Text('Tự động copy đường dẫn file PDF sau khi lưu'),
+                value: settingsProvider.savePdfPathToClipboard,
+                onChanged: (val) {
+                  settingsProvider.setSavePdfPathToClipboard(val);
+                },
+              ),
+              const Divider(indent: 16, endIndent: 16),
               ListTile(
                 title: const Text('Thư mục mặc định lưu PDF'),
                 subtitle: Text(saveFolder ?? 'Mặc định (Downloads)'),

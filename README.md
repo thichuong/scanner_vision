@@ -6,21 +6,23 @@ Scanner Vision là một ứng dụng Flutter chuyên nghiệp dùng để quét
 
 - **Quét tài liệu thông minh**: Tự động phát hiện cạnh, căn chỉnh và cắt tài liệu bằng Google ML Kit Document Scanner API.
 - **Tự động sao chép hình ảnh**: 
-  - Ngay sau khi scan thành công, ảnh kết quả được tự động đưa vào Clipboard hệ thống.
-  - Hỗ trợ dán trực tiếp vào các ứng dụng chat (Zalo, Messenger, v.v.) hoặc trình chỉnh sửa ảnh.
+  - Ngay sau khi scan thành công, ảnh kết quả được tự động đưa vào Clipboard hệ thống dưới dạng Binary (sử dụng `pasteboard`).
+  - Hỗ trợ dán trực tiếp vào các ứng dụng chat (Zalo, Messenger, v.v.).
+- **Tự động lưu Gallery**: Tự động lưu ảnh đã quét vào thư viện ảnh của thiết bị (Photos/Gallery) ngay khi có kết quả.
 - **Ghép và xuất tài liệu CCCD**:
   - Tích hợp quét mã QR để trích xuất thông tin tự động (Họ tên, ngày sinh, số định danh, ...).
   - Quy trình quét 2 mặt mượt mà, chuyển tiếp trực tiếp giữa các mặt quét.
-  - Ghép 2 mặt CCCD vào một trang A4 duy nhất (Hỗ trợ cả hướng Dọc và Ngang).
+  - Ghép 2 mặt CCCD vào một trang A4 duy nhất.
 - **Tự động hóa PDF & In ấn**:
-  - Hỗ trợ xuất file PDF khổ A4 chuẩn với thuật toán Fit-to-page thông minh.
-  - **Tự động lưu**: File PDF được lưu vào thư mục `Pictures/Scanner Vision` trên thiết bị.
-  - **Copy Path**: Tự động copy đường dẫn file đã lưu vào Clipboard.
-  - **Mở file tức thì**: Tự động mở file PDF bằng ứng dụng mặc định ngay sau khi tạo.
+  - Hỗ trợ xuất file PDF khổ A4 chuẩn với thuật toán Fit-to-page.
+  - **Tự động lưu**: File PDF được lưu vào thư mục `Pictures/Scanner Vision`.
+  - **Copy Path & Mở file**: Tự động sao chép đường dẫn file và mở trình xem mặc định (có thể cấu hình).
 - **Quản lý lịch sử chuyên nghiệp**: 
-  - Lưu và quản lý các phiên quét (Sessions) trong thư mục tài liệu ứng dụng.
-  - Xem chi tiết hình ảnh, copy thông tin dữ liệu (đối với CCCD) và thực hiện in lại bất cứ lúc nào.
-- **Cài đặt cá nhân hóa**: Tùy chỉnh bật/tắt xem trước bản in, vị trí lưu trữ và chế độ Dark Mode.
+  - Lưu và quản lý các phiên quét (Sessions) trong bộ nhớ lâu dài.
+  - Xem chi tiết, in lại hoặc chia sẻ bất cứ lúc nào.
+- **Cài đặt cá nhân hóa**: 
+  - Tùy chỉnh bật/tắt: Xem trước in, Tự động lưu Gallery, Tự động copy ảnh/đường dẫn PDF.
+  - Hỗ trợ giao diện Sáng/Tối (Light/Dark Mode).
 
 ## 🛠 Công nghệ sử dụng
 
@@ -28,8 +30,11 @@ Scanner Vision là một ứng dụng Flutter chuyên nghiệp dùng để quét
 - **Google ML Kit**: 
   - `document_scanner`: Xử lý quét tài liệu.
   - `barcode_scanning`: Đọc mã QR trên CCCD.
-- **pdf & printing**: Tạo và xử lý file PDF, hỗ trợ in ấn trực tiếp.
-- **shared_preferences**: Lưu trữ cấu hình người dùng.
+- **pdf & printing**: Tạo và xử lý file PDF, hỗ trợ in ấn.
+- **pasteboard**: Xử lý sao chép hình ảnh Binary vào Clipboard.
+- **gal**: Lưu trữ hình ảnh vào Gallery hệ thống.
+- **provider**: Quản lý trạng thái ứng dụng tập trung.
+- **shared_preferences**: Lưu trữ thiết lập người dùng.
 
 ## 🚀 Bắt đầu
 

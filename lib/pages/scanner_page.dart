@@ -55,8 +55,14 @@ class _ScannerPageState extends State<ScannerPage> {
             type: 'document',
           );
         });
-        // Auto-copy to clipboard
-        await ClipboardService.copyImagesToClipboard(result.images!);
+        // Auto-copy to clipboard if enabled
+        if (mounted) {
+          final bool shouldCopy =
+              context.read<SettingsProvider>().saveImageToClipboard;
+          if (shouldCopy) {
+            await ClipboardService.copyImagesToClipboard(result.images!);
+          }
+        }
         
         // Auto-save to gallery if enabled
         if (mounted && context.read<SettingsProvider>().saveToGallery) {
@@ -65,15 +71,26 @@ class _ScannerPageState extends State<ScannerPage> {
 
         if (mounted) {
           final bool savedToGallery = context.read<SettingsProvider>().saveToGallery;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(savedToGallery 
-                ? 'Đã copy vào clipboard & lưu vào Thư viện ảnh!' 
-                : 'Đã tự động copy ảnh vào clipboard!'),
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          final bool copiedToClipboard = context.read<SettingsProvider>().saveImageToClipboard;
+
+          String message = '';
+          if (copiedToClipboard && savedToGallery) {
+            message = 'Đã copy vào clipboard & lưu vào Thư viện ảnh!';
+          } else if (copiedToClipboard) {
+            message = 'Đã tự động copy ảnh vào clipboard!';
+          } else if (savedToGallery) {
+            message = 'Đã lưu ảnh vào Thư viện!';
+          }
+
+          if (message.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         }
       } else if (_currentSession == null && mounted) {
         Navigator.pop(context); // Cancel entire process if first scan failed
@@ -92,8 +109,14 @@ class _ScannerPageState extends State<ScannerPage> {
                 : null,
           );
         });
-        // Auto-copy to clipboard
-        await ClipboardService.copyImagesToClipboard(result.images);
+        // Auto-copy to clipboard if enabled
+        if (mounted) {
+          final bool shouldCopy =
+              context.read<SettingsProvider>().saveImageToClipboard;
+          if (shouldCopy) {
+            await ClipboardService.copyImagesToClipboard(result.images);
+          }
+        }
 
         // Auto-save to gallery if enabled
         if (mounted && context.read<SettingsProvider>().saveToGallery) {
@@ -102,15 +125,26 @@ class _ScannerPageState extends State<ScannerPage> {
 
         if (mounted) {
           final bool savedToGallery = context.read<SettingsProvider>().saveToGallery;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(savedToGallery 
-                ? 'Đã copy vào clipboard & lưu vào Thư viện ảnh!' 
-                : 'Đã tự động copy ảnh CCCD vào clipboard!'),
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          final bool copiedToClipboard = context.read<SettingsProvider>().saveImageToClipboard;
+
+          String message = '';
+          if (copiedToClipboard && savedToGallery) {
+            message = 'Đã copy vào clipboard & lưu vào Thư viện ảnh!';
+          } else if (copiedToClipboard) {
+            message = 'Đã tự động copy ảnh CCCD vào clipboard!';
+          } else if (savedToGallery) {
+            message = 'Đã lưu ảnh CCCD vào Thư viện!';
+          }
+
+          if (message.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         }
       } else if (initialImages == null && _currentSession == null && mounted) {
         Navigator.pop(context); // Cancel entire process if first scan failed

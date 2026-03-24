@@ -164,8 +164,10 @@ class PdfService {
     }
     await file.writeAsBytes(bytes);
 
-    // Copy path to clipboard
-    await Clipboard.setData(ClipboardData(text: file.path));
+    // Copy path to clipboard if enabled
+    if (await SettingsService.shouldSavePdfPathToClipboard()) {
+      await Clipboard.setData(ClipboardData(text: file.path));
+    }
 
     return file.path;
   }
