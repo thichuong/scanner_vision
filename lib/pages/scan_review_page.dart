@@ -45,7 +45,7 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
           builder: (context) => PrintPreviewPage(
             imagePaths: widget.session.imagePaths,
             isCccd: widget.session.type == 'cccd',
-            isVertical: true,
+            isVertical: widget.session.type == 'cccd' ? false : true,
           ),
         ),
       );
@@ -59,7 +59,7 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
           bytes = await PdfService.generateCCCDPdfBytes(
             PdfPageFormat.a4,
             widget.session.imagePaths,
-            isVertical: true,
+            isVertical: false,
           );
         } else {
           bytes = await PdfService.generateDocumentPdfBytes(
