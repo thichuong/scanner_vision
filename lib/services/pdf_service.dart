@@ -1,6 +1,5 @@
 import 'dart:io';
 // import 'dart:typed_data'; // Provided by services.dart
-import 'package:flutter/painting.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
@@ -72,62 +71,92 @@ class PdfService {
 
   static Future<Uint8List> generateDocumentPdfBytes(
     PdfPageFormat format,
-    List<String> imagePaths,
-  ) async {
+    List<String> imagePaths, {
+    bool isLandscape = false,
+    int imagesPerPage = 1,
+    double imageScale = 1.0,
+    bool isVerticalLayout = true,
+  }) async {
     final pdf = pw.Document();
+    final pageFormat = isLandscape ? format.landscape : format.portrait;
 
-    for (var path in imagePaths) {
-      final bytes = File(path).readAsBytesSync();
-      final decodedImage = await decodeImageFromList(bytes);
-      final isLandscape = decodedImage.width > decodedImage.height;
+    // Group images according to imagesPerPage
+    for (var i = 0; i < imagePaths.length; i += imagesPerPage) {
+      final chunk = imagePaths.sublist(
+        i,
+        i + imagesPerPage > imagePaths.length
+            ? imagePaths.length
+            : i + imagesPerPage,
+      );
 
-      // Force orientation based on image dimensions rather than what the UI (PdfPreview) provides
-
-      final img = pw.MemoryImage(bytes);
+      final images = <pw.MemoryImage>[];
+      for (var path in chunk) {
+        final bytes = File(path).readAsBytesSync();
+        images.add(pw.MemoryImage(bytes));
+      }
 
       pdf.addPage(
         pw.Page(
-          pageFormat: format.portrait,
-          margin: pw.EdgeInsets.zero,
+          pageFormat: pageFormat,
+          margin: const pw.EdgeInsets.all(10), // Reduced default margin
           build: (pw.Context context) {
-            final pageWidth = format.portrait.width;
-            final pageHeight = format.portrait.height;
-
-            double imgWidth = decodedImage.width.toDouble();
-            double imgHeight = decodedImage.height.toDouble();
-
-            double targetWidth = isLandscape ? pageHeight : pageWidth;
-            double targetHeight = isLandscape ? pageWidth : pageHeight;
-
-            // Tính toán tỷ lệ (scale) để fit hoàn toàn vào trang mà không bị tràn (tương đương contain)
-            double scaleX = targetWidth / imgWidth;
-            double scaleY = targetHeight / imgHeight;
-            double scale = scaleX < scaleY ? scaleX : scaleY;
-
-            double finalWidth = imgWidth * scale;
-            double finalHeight = imgHeight * scale;
-
-            if (isLandscape) {
-              return pw.Center(
-                child: pw.Transform.rotateBox(
-                  angle: 1.5707963268, // pi/2 radians
-                  unconstrained: true, // ignore portrait parent constraints before rotating
-                  child: pw.Container(
-                    width: finalWidth, // dùng kích thước đã tính toán chính xác
-                    height: finalHeight,
-                    child: pw.Image(img, fit: pw.BoxFit.fill),
-                  ),
-                ),
-              );
-            } else {
+            if (imagesPerPage == 1) {
               return pw.Center(
                 child: pw.Container(
-                  width: finalWidth,
-                  height: finalHeight,
-                  child: pw.Image(img, fit: pw.BoxFit.fill),
+                  width: pageFormat.availableWidth * imageScale,
+                  height: pageFormat.availableHeight * imageScale,
+                  child: pw.Image(images[0], fit: pw.BoxFit.contain),
                 ),
               );
             }
+
+            // Grid calculation for N-up
+            int crossAxisCount;
+            int mainAxisCount;
+
+            if (imagesPerPage == 2) {
+              crossAxisCount = pageFormat.width > pageFormat.height ? 2 : 1;
+              mainAxisCount = pageFormat.width > pageFormat.height ? 1 : 2;
+            } else if (imagesPerPage == 4) {
+              crossAxisCount = 2;
+              mainAxisCount = 2;
+            } else if (imagesPerPage == 6) {
+              crossAxisCount = pageFormat.width > pageFormat.height ? 3 : 2;
+              mainAxisCount = pageFormat.width > pageFormat.height ? 2 : 3;
+            } else if (imagesPerPage == 9) {
+              crossAxisCount = 3;
+              mainAxisCount = 3;
+            } else {
+              crossAxisCount = 1;
+              mainAxisCount = 1;
+            }
+
+            // Swap if orientation requires it
+            if (!isVerticalLayout) {
+              final temp = crossAxisCount;
+              crossAxisCount = mainAxisCount;
+              mainAxisCount = temp;
+            }
+
+            final gridChildren = images.map((img) {
+              return pw.Padding(
+                padding: const pw.EdgeInsets.all(4),
+                child: pw.Center(
+                  child: pw.Container(
+                    width: (pageFormat.availableWidth / crossAxisCount) *
+                        imageScale,
+                    height: (pageFormat.availableHeight / mainAxisCount) *
+                        imageScale,
+                    child: pw.Image(img, fit: pw.BoxFit.contain),
+                  ),
+                ),
+              );
+            }).toList();
+
+            return pw.GridView(
+              crossAxisCount: crossAxisCount,
+              children: gridChildren,
+            );
           },
         ),
       );
