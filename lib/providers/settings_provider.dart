@@ -7,12 +7,16 @@ class SettingsProvider extends ChangeNotifier {
   bool _saveToGallery = true;
   bool _saveImageToClipboard = true;
   bool _savePdfPathToClipboard = false;
+  bool _autoScale = true;
+  bool _autoRotate = true;
 
   bool get showPreview => _showPreview;
   String? get saveFolder => _saveFolder;
   bool get saveToGallery => _saveToGallery;
   bool get saveImageToClipboard => _saveImageToClipboard;
   bool get savePdfPathToClipboard => _savePdfPathToClipboard;
+  bool get autoScale => _autoScale;
+  bool get autoRotate => _autoRotate;
 
   SettingsProvider() {
     _loadSettings();
@@ -24,6 +28,8 @@ class SettingsProvider extends ChangeNotifier {
     _saveToGallery = await SettingsService.shouldSaveToGallery();
     _saveImageToClipboard = await SettingsService.shouldSaveImageToClipboard();
     _savePdfPathToClipboard = await SettingsService.shouldSavePdfPathToClipboard();
+    _autoScale = await SettingsService.shouldAutoScale();
+    _autoRotate = await SettingsService.shouldAutoRotate();
     notifyListeners();
   }
 
@@ -54,6 +60,18 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setSavePdfPathToClipboard(bool value) async {
     await SettingsService.setSavePdfPathToClipboard(value);
     _savePdfPathToClipboard = value;
+    notifyListeners();
+  }
+
+  Future<void> setAutoScale(bool value) async {
+    await SettingsService.setAutoScale(value);
+    _autoScale = value;
+    notifyListeners();
+  }
+
+  Future<void> setAutoRotate(bool value) async {
+    await SettingsService.setAutoRotate(value);
+    _autoRotate = value;
     notifyListeners();
   }
 }

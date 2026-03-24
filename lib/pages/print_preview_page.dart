@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
+import 'package:provider/provider.dart';
 import '../services/pdf_service.dart';
+import '../providers/settings_provider.dart';
 
 class PrintPreviewPage extends StatefulWidget {
   final List<String> imagePaths;
@@ -24,11 +26,22 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
   int _imagesPerPage = 1;
   double _imageScale = 1.0;
   bool _isVerticalLayout = true;
+  bool _autoRotate = true;
+  bool _autoScale = true;
 
   @override
   void initState() {
     super.initState();
     _isLandscape = !widget.isVertical;
+    
+    // Initialize from settings
+    final settings = context.read<SettingsProvider>();
+    _autoRotate = settings.autoRotate;
+    _autoScale = settings.autoScale;
+    
+    if (_autoScale) {
+      _imageScale = 1.5;
+    }
   }
 
   void _showSettings() {
@@ -71,28 +84,56 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                             ),
                       ),
                       const SizedBox(height: 20),
-                      // Orientation
-                      _buildSectionTitle('Hướng giấy'),
-                      SegmentedButton<bool>(
-                        segments: const [
-                          ButtonSegment(
-                            value: false,
-                            label: Text('Dọc (Portrait)'),
-                            icon: Icon(Icons.portrait),
-                          ),
-                          ButtonSegment(
-                            value: true,
-                            label: Text('Ngang (Landscape)'),
-                            icon: Icon(Icons.landscape),
-                          ),
-                        ],
-                        selected: {_isLandscape},
-                        onSelectionChanged: (value) {
-                          setState(() => _isLandscape = value.first);
+                      // Auto Toggles
+                      SwitchListTile(
+                        title: const Text('Tự động xoay (Auto-rotate)'),
+                        subtitle: const Text('Tự động chọn hướng Dọc/Ngang theo ảnh'),
+                        value: _autoRotate,
+                        onChanged: (value) {
+                          setState(() => _autoRotate = value);
+                          context.read<SettingsProvider>().setAutoRotate(value);
                           setModalState(() {});
                         },
                       ),
-                      const SizedBox(height: 20),
+                      SwitchListTile(
+                        title: const Text('Tự động thu phóng (Auto-scale)'),
+                        subtitle: const Text('Tự động khớp ảnh với trang'),
+                        value: _autoScale,
+                        onChanged: (value) {
+                          setState(() {
+                            _autoScale = value;
+                            if (value) _imageScale = 1.5;
+                          });
+                          context.read<SettingsProvider>().setAutoScale(value);
+                          setModalState(() {});
+                        },
+                      ),
+                      const Divider(),
+                      const SizedBox(height: 10),
+                      // Orientation
+                      if (!_autoRotate || _imagesPerPage > 1) ...[
+                        _buildSectionTitle('Hướng giấy (Thủ công)'),
+                        SegmentedButton<bool>(
+                          segments: const [
+                            ButtonSegment(
+                              value: false,
+                              label: Text('Dọc'),
+                              icon: Icon(Icons.portrait),
+                            ),
+                            ButtonSegment(
+                              value: true,
+                              label: Text('Ngang'),
+                              icon: Icon(Icons.landscape),
+                            ),
+                          ],
+                          selected: {_isLandscape},
+                          onSelectionChanged: (value) {
+                            setState(() => _isLandscape = value.first);
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                      ],
                       // Images per page
                       _buildSectionTitle('Số ảnh trên 1 trang'),
                       Wrap(
@@ -144,11 +185,19 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                         max: 1.5,
                         divisions: 10,
                         label: _imageScale.toStringAsFixed(1),
-                        onChanged: (value) {
+                        onChanged: _autoScale ? null : (value) {
                           setState(() => _imageScale = value);
                           setModalState(() {});
                         },
                       ),
+                      if (_autoScale)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            'Tắt "Tự động thu phóng" để điều chỉnh thủ công',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
                     ],
                   ),
                 );
@@ -200,6 +249,7 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
               imagesPerPage: _imagesPerPage,
               imageScale: _imageScale,
               isVerticalLayout: _isVerticalLayout,
+              autoRotate: _autoRotate,
             );
           }
         },
@@ -249,6 +299,7 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                             imagesPerPage: _imagesPerPage,
                             imageScale: _imageScale,
                             isVerticalLayout: _isVerticalLayout,
+                            autoRotate: _autoRotate,
                           );
 
                     final fileName =

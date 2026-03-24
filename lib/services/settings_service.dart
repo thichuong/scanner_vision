@@ -6,6 +6,8 @@ class SettingsService {
   static const String _keySaveToGallery = 'save_to_gallery';
   static const String _keySaveImageToClipboard = 'save_image_to_clipboard';
   static const String _keySavePdfPathToClipboard = 'save_pdf_path_to_clipboard';
+  static const String _keyAutoScale = 'pdf_auto_scale';
+  static const String _keyAutoRotate = 'pdf_auto_rotate';
 
   static Future<bool> shouldShowPreview() async {
     final prefs = await SharedPreferences.getInstance();
@@ -55,5 +57,25 @@ class SettingsService {
   static Future<void> setSavePdfPathToClipboard(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keySavePdfPathToClipboard, value);
+  }
+
+  static Future<bool> shouldAutoScale() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyAutoScale) ?? true;
+  }
+
+  static Future<void> setAutoScale(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyAutoScale, value);
+  }
+
+  static Future<bool> shouldAutoRotate() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyAutoRotate) ?? true;
+  }
+
+  static Future<void> setAutoRotate(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyAutoRotate, value);
   }
 }

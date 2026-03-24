@@ -66,6 +66,23 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
               const Divider(indent: 16, endIndent: 16),
+              SwitchListTile(
+                title: const Text('Tự động xoay PDF'),
+                subtitle: const Text('Tự động chọn hướng Dọc/Ngang theo ảnh'),
+                value: settingsProvider.autoRotate,
+                onChanged: (val) {
+                  settingsProvider.setAutoRotate(val);
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Tự động thu phóng PDF'),
+                subtitle: const Text('Tự động khớp ảnh với trang giấy'),
+                value: settingsProvider.autoScale,
+                onChanged: (val) {
+                  settingsProvider.setAutoScale(val);
+                },
+              ),
+              const Divider(indent: 16, endIndent: 16),
               ListTile(
                 title: const Text('Thư mục mặc định lưu PDF'),
                 subtitle: Text(saveFolder ?? 'Mặc định (Downloads)'),

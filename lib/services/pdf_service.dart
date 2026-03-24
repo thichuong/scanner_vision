@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
+import 'dart:ui' as ui;
 import 'settings_service.dart';
 
 class PdfService {
@@ -76,10 +77,10 @@ class PdfService {
     int imagesPerPage = 1,
     double imageScale = 1.0,
     bool isVerticalLayout = true,
+    bool autoRotate = false,
   }) async {
     final pdf = pw.Document();
-    final pageFormat = isLandscape ? format.landscape : format.portrait;
-
+    
     // Group images according to imagesPerPage
     for (var i = 0; i < imagePaths.length; i += imagesPerPage) {
       final chunk = imagePaths.sublist(
@@ -90,21 +91,42 @@ class PdfService {
       );
 
       final images = <pw.MemoryImage>[];
+      final dimensions = <ui.Size>[];
+      
       for (var path in chunk) {
         final bytes = File(path).readAsBytesSync();
         images.add(pw.MemoryImage(bytes));
+        
+        if (autoRotate && imagesPerPage == 1) {
+          final codec = await ui.instantiateImageCodec(bytes);
+          final frame = await codec.getNextFrame();
+          dimensions.add(ui.Size(frame.image.width.toDouble(), frame.image.height.toDouble()));
+        }
+      }
+
+      PdfPageFormat currentPageFormat;
+      if (autoRotate && imagesPerPage == 1 && dimensions.isNotEmpty) {
+        final imgSize = dimensions[0];
+        // If image is wider than tall, use landscape if format is portrait, or vice versa
+        if (imgSize.width > imgSize.height) {
+          currentPageFormat = format.landscape;
+        } else {
+          currentPageFormat = format.portrait;
+        }
+      } else {
+        currentPageFormat = isLandscape ? format.landscape : format.portrait;
       }
 
       pdf.addPage(
         pw.Page(
-          pageFormat: pageFormat,
-          margin: const pw.EdgeInsets.all(10), // Reduced default margin
+          pageFormat: currentPageFormat,
+          margin: const pw.EdgeInsets.all(10),
           build: (pw.Context context) {
             if (imagesPerPage == 1) {
               return pw.Center(
                 child: pw.Container(
-                  width: pageFormat.availableWidth * imageScale,
-                  height: pageFormat.availableHeight * imageScale,
+                  width: currentPageFormat.availableWidth * imageScale,
+                  height: currentPageFormat.availableHeight * imageScale,
                   child: pw.Image(images[0], fit: pw.BoxFit.contain),
                 ),
               );
@@ -115,14 +137,14 @@ class PdfService {
             int mainAxisCount;
 
             if (imagesPerPage == 2) {
-              crossAxisCount = pageFormat.width > pageFormat.height ? 2 : 1;
-              mainAxisCount = pageFormat.width > pageFormat.height ? 1 : 2;
+              crossAxisCount = currentPageFormat.width > currentPageFormat.height ? 2 : 1;
+              mainAxisCount = currentPageFormat.width > currentPageFormat.height ? 1 : 2;
             } else if (imagesPerPage == 4) {
               crossAxisCount = 2;
               mainAxisCount = 2;
             } else if (imagesPerPage == 6) {
-              crossAxisCount = pageFormat.width > pageFormat.height ? 3 : 2;
-              mainAxisCount = pageFormat.width > pageFormat.height ? 2 : 3;
+              crossAxisCount = currentPageFormat.width > currentPageFormat.height ? 3 : 2;
+              mainAxisCount = currentPageFormat.width > currentPageFormat.height ? 2 : 3;
             } else if (imagesPerPage == 9) {
               crossAxisCount = 3;
               mainAxisCount = 3;
@@ -143,9 +165,9 @@ class PdfService {
                 padding: const pw.EdgeInsets.all(4),
                 child: pw.Center(
                   child: pw.Container(
-                    width: (pageFormat.availableWidth / crossAxisCount) *
+                    width: (currentPageFormat.availableWidth / crossAxisCount) *
                         imageScale,
-                    height: (pageFormat.availableHeight / mainAxisCount) *
+                    height: (currentPageFormat.availableHeight / mainAxisCount) *
                         imageScale,
                     child: pw.Image(img, fit: pw.BoxFit.contain),
                   ),
