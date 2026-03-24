@@ -6,6 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import file_picker
+import gal
 import pasteboard
 import printing
 import share_plus
@@ -13,6 +14,7 @@ import shared_preferences_foundation
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
+  GalPlugin.register(with: registry.registrar(forPlugin: "GalPlugin"))
   PasteboardPlugin.register(with: registry.registrar(forPlugin: "PasteboardPlugin"))
   PrintingPlugin.register(with: registry.registrar(forPlugin: "PrintingPlugin"))
   SharePlusMacosPlugin.register(with: registry.registrar(forPlugin: "SharePlusMacosPlugin"))

@@ -3,6 +3,9 @@ import '../services/scanner_service.dart';
 import '../models/scan_session.dart';
 import '../models/cccd_model.dart';
 import '../services/clipboard_service.dart';
+import '../services/gallery_service.dart';
+import '../providers/settings_provider.dart';
+import 'package:provider/provider.dart';
 import 'scan_review_page.dart';
 
 class ScannerPage extends StatefulWidget {
@@ -54,11 +57,20 @@ class _ScannerPageState extends State<ScannerPage> {
         });
         // Auto-copy to clipboard
         await ClipboardService.copyImagesToClipboard(result.images!);
+        
+        // Auto-save to gallery if enabled
+        if (mounted && context.read<SettingsProvider>().saveToGallery) {
+          await GalleryService.saveImagesToGallery(result.images!);
+        }
+
         if (mounted) {
+          final bool savedToGallery = context.read<SettingsProvider>().saveToGallery;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Đã tự động copy ảnh vào clipboard!'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(savedToGallery 
+                ? 'Đã copy vào clipboard & lưu vào Thư viện ảnh!' 
+                : 'Đã tự động copy ảnh vào clipboard!'),
+              duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -82,11 +94,20 @@ class _ScannerPageState extends State<ScannerPage> {
         });
         // Auto-copy to clipboard
         await ClipboardService.copyImagesToClipboard(result.images);
+
+        // Auto-save to gallery if enabled
+        if (mounted && context.read<SettingsProvider>().saveToGallery) {
+          await GalleryService.saveImagesToGallery(result.images);
+        }
+
         if (mounted) {
+          final bool savedToGallery = context.read<SettingsProvider>().saveToGallery;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Đã tự động copy ảnh CCCD vào clipboard!'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(savedToGallery 
+                ? 'Đã copy vào clipboard & lưu vào Thư viện ảnh!' 
+                : 'Đã tự động copy ảnh CCCD vào clipboard!'),
+              duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
             ),
           );
