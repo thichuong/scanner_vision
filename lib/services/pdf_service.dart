@@ -80,7 +80,7 @@ class PdfService {
     bool autoRotate = false,
   }) async {
     final pdf = pw.Document();
-    
+
     // Group images according to imagesPerPage
     for (var i = 0; i < imagePaths.length; i += imagesPerPage) {
       final chunk = imagePaths.sublist(
@@ -92,15 +92,20 @@ class PdfService {
 
       final images = <pw.MemoryImage>[];
       final dimensions = <ui.Size>[];
-      
+
       for (var path in chunk) {
         final bytes = File(path).readAsBytesSync();
         images.add(pw.MemoryImage(bytes));
-        
+
         if (autoRotate && imagesPerPage == 1) {
           final codec = await ui.instantiateImageCodec(bytes);
           final frame = await codec.getNextFrame();
-          dimensions.add(ui.Size(frame.image.width.toDouble(), frame.image.height.toDouble()));
+          dimensions.add(
+            ui.Size(
+              frame.image.width.toDouble(),
+              frame.image.height.toDouble(),
+            ),
+          );
         }
       }
 
@@ -137,14 +142,20 @@ class PdfService {
             int mainAxisCount;
 
             if (imagesPerPage == 2) {
-              crossAxisCount = currentPageFormat.width > currentPageFormat.height ? 2 : 1;
-              mainAxisCount = currentPageFormat.width > currentPageFormat.height ? 1 : 2;
+              crossAxisCount =
+                  currentPageFormat.width > currentPageFormat.height ? 2 : 1;
+              mainAxisCount = currentPageFormat.width > currentPageFormat.height
+                  ? 1
+                  : 2;
             } else if (imagesPerPage == 4) {
               crossAxisCount = 2;
               mainAxisCount = 2;
             } else if (imagesPerPage == 6) {
-              crossAxisCount = currentPageFormat.width > currentPageFormat.height ? 3 : 2;
-              mainAxisCount = currentPageFormat.width > currentPageFormat.height ? 2 : 3;
+              crossAxisCount =
+                  currentPageFormat.width > currentPageFormat.height ? 3 : 2;
+              mainAxisCount = currentPageFormat.width > currentPageFormat.height
+                  ? 2
+                  : 3;
             } else if (imagesPerPage == 9) {
               crossAxisCount = 3;
               mainAxisCount = 3;
@@ -165,9 +176,11 @@ class PdfService {
                 padding: const pw.EdgeInsets.all(4),
                 child: pw.Center(
                   child: pw.Container(
-                    width: (currentPageFormat.availableWidth / crossAxisCount) *
+                    width:
+                        (currentPageFormat.availableWidth / crossAxisCount) *
                         imageScale,
-                    height: (currentPageFormat.availableHeight / mainAxisCount) *
+                    height:
+                        (currentPageFormat.availableHeight / mainAxisCount) *
                         imageScale,
                     child: pw.Image(img, fit: pw.BoxFit.contain),
                   ),

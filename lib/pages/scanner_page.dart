@@ -43,10 +43,12 @@ class _ScannerPageState extends State<ScannerPage> {
 
   Future<void> _startScan({List<String>? initialImages}) async {
     setState(() => _isScanning = true);
-    
+
     if (widget.scanType == 'document') {
       final result = await _scannerService.scanDocument();
-      if (result != null && result.images != null && result.images!.isNotEmpty) {
+      if (result != null &&
+          result.images != null &&
+          result.images!.isNotEmpty) {
         setState(() {
           _currentSession = ScanSession(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -57,21 +59,26 @@ class _ScannerPageState extends State<ScannerPage> {
         });
         // Auto-copy to clipboard if enabled
         if (mounted) {
-          final bool shouldCopy =
-              context.read<SettingsProvider>().saveImageToClipboard;
+          final bool shouldCopy = context
+              .read<SettingsProvider>()
+              .saveImageToClipboard;
           if (shouldCopy) {
             await ClipboardService.copyImagesToClipboard(result.images!);
           }
         }
-        
+
         // Auto-save to gallery if enabled
         if (mounted && context.read<SettingsProvider>().saveToGallery) {
           await GalleryService.saveImagesToGallery(result.images!);
         }
 
         if (mounted) {
-          final bool savedToGallery = context.read<SettingsProvider>().saveToGallery;
-          final bool copiedToClipboard = context.read<SettingsProvider>().saveImageToClipboard;
+          final bool savedToGallery = context
+              .read<SettingsProvider>()
+              .saveToGallery;
+          final bool copiedToClipboard = context
+              .read<SettingsProvider>()
+              .saveImageToClipboard;
 
           String message = '';
           if (copiedToClipboard && savedToGallery) {
@@ -96,7 +103,9 @@ class _ScannerPageState extends State<ScannerPage> {
         Navigator.pop(context); // Cancel entire process if first scan failed
       }
     } else {
-      final result = await _scannerService.scanCCCD(initialImages: initialImages);
+      final result = await _scannerService.scanCCCD(
+        initialImages: initialImages,
+      );
       if (result != null && result.images.isNotEmpty) {
         setState(() {
           _currentSession = ScanSession(
@@ -111,8 +120,9 @@ class _ScannerPageState extends State<ScannerPage> {
         });
         // Auto-copy to clipboard if enabled
         if (mounted) {
-          final bool shouldCopy =
-              context.read<SettingsProvider>().saveImageToClipboard;
+          final bool shouldCopy = context
+              .read<SettingsProvider>()
+              .saveImageToClipboard;
           if (shouldCopy) {
             await ClipboardService.copyImagesToClipboard(result.images);
           }
@@ -124,8 +134,12 @@ class _ScannerPageState extends State<ScannerPage> {
         }
 
         if (mounted) {
-          final bool savedToGallery = context.read<SettingsProvider>().saveToGallery;
-          final bool copiedToClipboard = context.read<SettingsProvider>().saveImageToClipboard;
+          final bool savedToGallery = context
+              .read<SettingsProvider>()
+              .saveToGallery;
+          final bool copiedToClipboard = context
+              .read<SettingsProvider>()
+              .saveImageToClipboard;
 
           String message = '';
           if (copiedToClipboard && savedToGallery) {
@@ -150,7 +164,7 @@ class _ScannerPageState extends State<ScannerPage> {
         Navigator.pop(context); // Cancel entire process if first scan failed
       }
     }
-    
+
     if (mounted) setState(() => _isScanning = false);
   }
 

@@ -27,7 +27,8 @@ class SettingsProvider extends ChangeNotifier {
     _saveFolder = await SettingsService.getSaveFolder();
     _saveToGallery = await SettingsService.shouldSaveToGallery();
     _saveImageToClipboard = await SettingsService.shouldSaveImageToClipboard();
-    _savePdfPathToClipboard = await SettingsService.shouldSavePdfPathToClipboard();
+    _savePdfPathToClipboard =
+        await SettingsService.shouldSavePdfPathToClipboard();
     _autoScale = await SettingsService.shouldAutoScale();
     _autoRotate = await SettingsService.shouldAutoRotate();
     notifyListeners();

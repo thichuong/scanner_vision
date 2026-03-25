@@ -132,9 +132,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar.medium(
-            title: Text(
-              isCccd ? 'Chi tiết CCCD' : 'Chi tiết Tài liệu',
-            ),
+            title: Text(isCccd ? 'Chi tiết CCCD' : 'Chi tiết Tài liệu'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.delete_outline),

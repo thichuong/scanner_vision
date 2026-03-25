@@ -33,12 +33,12 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
   void initState() {
     super.initState();
     _isLandscape = !widget.isVertical;
-    
+
     // Initialize from settings
     final settings = context.read<SettingsProvider>();
     _autoRotate = settings.autoRotate;
     _autoScale = settings.autoScale;
-    
+
     if (_autoScale) {
       _imageScale = 1.5;
     }
@@ -79,15 +79,16 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                       const SizedBox(height: 20),
                       Text(
                         'Cấu hình in & lưu',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
                       // Auto Toggles
                       SwitchListTile(
                         title: const Text('Tự động xoay (Auto-rotate)'),
-                        subtitle: const Text('Tự động chọn hướng Dọc/Ngang theo ảnh'),
+                        subtitle: const Text(
+                          'Tự động chọn hướng Dọc/Ngang theo ảnh',
+                        ),
                         value: _autoRotate,
                         onChanged: (value) {
                           setState(() => _autoRotate = value);
@@ -178,17 +179,21 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                         const SizedBox(height: 20),
                       ],
                       // Zoom/Scale
-                      _buildSectionTitle('Thu phóng (Scale): ${_imageScale.toStringAsFixed(1)}x'),
+                      _buildSectionTitle(
+                        'Thu phóng (Scale): ${_imageScale.toStringAsFixed(1)}x',
+                      ),
                       Slider(
                         value: _imageScale,
                         min: 0.5,
                         max: 1.5,
                         divisions: 10,
                         label: _imageScale.toStringAsFixed(1),
-                        onChanged: _autoScale ? null : (value) {
-                          setState(() => _imageScale = value);
-                          setModalState(() {});
-                        },
+                        onChanged: _autoScale
+                            ? null
+                            : (value) {
+                                setState(() => _imageScale = value);
+                                setModalState(() {});
+                              },
                       ),
                       if (_autoScale)
                         const Padding(
@@ -304,8 +309,10 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
 
                     final fileName =
                         'ScannerVision_${DateTime.now().millisecondsSinceEpoch}.pdf';
-                    final savedPath =
-                        await PdfService.saveAndCopyPdf(bytes, fileName);
+                    final savedPath = await PdfService.saveAndCopyPdf(
+                      bytes,
+                      fileName,
+                    );
 
                     await PdfService.openFile(savedPath);
 
@@ -313,7 +320,8 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              'Đã lưu vào bộ nhớ và copy đường dẫn: $savedPath'),
+                            'Đã lưu vào bộ nhớ và copy đường dẫn: $savedPath',
+                          ),
                           backgroundColor: Colors.green,
                         ),
                       );

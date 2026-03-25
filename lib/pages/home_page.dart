@@ -64,8 +64,8 @@ class HomePage extends StatelessWidget {
                       child: Center(child: CircularProgressIndicator()),
                     )
                   : sessions.isEmpty
-                      ? _buildEmptyState(context)
-                      : _buildSessionList(context, sessions),
+                  ? _buildEmptyState(context)
+                  : _buildSessionList(context, sessions),
             ),
           ],
         ),
@@ -217,9 +217,9 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               'Chưa có tài liệu nào',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -240,76 +240,75 @@ class HomePage extends StatelessWidget {
         final isCccd = session.type == 'cccd';
 
         return Card(
-          elevation: 0,
-          margin: const EdgeInsets.only(bottom: 16),
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(12),
-            leading: Hero(
-              tag: 'session_${session.id}',
-              child: Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: isCccd
-                      ? Colors.blue.withValues(alpha: 0.2)
-                      : Colors.green.withValues(alpha: 0.2),
-                ),
-                child: session.imagePaths.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          File(session.imagePaths.first),
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, error, stackTrace) => Icon(
+              elevation: 0,
+              margin: const EdgeInsets.only(bottom: 16),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(12),
+                leading: Hero(
+                  tag: 'session_${session.id}',
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: isCccd
+                          ? Colors.blue.withValues(alpha: 0.2)
+                          : Colors.green.withValues(alpha: 0.2),
+                    ),
+                    child: session.imagePaths.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              File(session.imagePaths.first),
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, error, stackTrace) => Icon(
+                                isCccd ? Icons.credit_card : Icons.description,
+                                color: isCccd ? Colors.blue : Colors.green,
+                              ),
+                            ),
+                          )
+                        : Icon(
                             isCccd ? Icons.credit_card : Icons.description,
                             color: isCccd ? Colors.blue : Colors.green,
                           ),
-                        ),
-                      )
-                    : Icon(
-                        isCccd ? Icons.credit_card : Icons.description,
-                        color: isCccd ? Colors.blue : Colors.green,
-                      ),
+                  ),
+                ),
+                title: Text(
+                  isCccd
+                      ? 'CCCD - ${session.cccdData?.fullName ?? "Lỗi tên"}'
+                      : 'Tài Liệu Scan',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text(
+                      '${session.imagePaths.length} ảnh • ${session.date.toString().substring(0, 16)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SessionDetailPage(session: session),
+                    ),
+                  ).then((_) {
+                    if (context.mounted) {
+                      context.read<SessionProvider>().loadSessions();
+                    }
+                  });
+                },
               ),
-            ),
-            title: Text(
-              isCccd
-                  ? 'CCCD - ${session.cccdData?.fullName ?? "Lỗi tên"}'
-                  : 'Tài Liệu Scan',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(
-                  '${session.imagePaths.length} ảnh • ${session.date.toString().substring(0, 16)}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SessionDetailPage(session: session),
-                ),
-              ).then((_) {
-                if (context.mounted) {
-                  context.read<SessionProvider>().loadSessions();
-                }
-              });
-            },
-          ),
-        ).animate().fadeIn(delay: (index * 100).ms).slideY(
-              begin: 0.2,
-              duration: 400.ms,
-            );
+            )
+            .animate()
+            .fadeIn(delay: (index * 100).ms)
+            .slideY(begin: 0.2, duration: 400.ms);
       }, childCount: sessions.length),
     );
   }
-
 }

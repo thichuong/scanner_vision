@@ -83,8 +83,13 @@ class StorageService {
       // 2. Read existing sessions
       final sessions = await getSessions();
 
-      // 3. Add new session and save
-      sessions.insert(0, sessionToSave); // Add to beginning
+      // 3. Find if session already exists and update or add new
+      final existingIndex = sessions.indexWhere((s) => s.id == session.id);
+      if (existingIndex != -1) {
+        sessions[existingIndex] = sessionToSave;
+      } else {
+        sessions.insert(0, sessionToSave); // Add to beginning
+      }
 
       final file = await _getFile();
       final jsonList = sessions.map((s) => s.toJson()).toList();

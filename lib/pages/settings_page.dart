@@ -24,9 +24,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar.medium(
-            title: Text('Cài đặt'),
-          ),
+          const SliverAppBar.medium(title: Text('Cài đặt')),
           SliverList(
             delegate: SliverChildListDelegate([
               SwitchListTile(
@@ -50,7 +48,9 @@ class SettingsPage extends StatelessWidget {
               ),
               SwitchListTile(
                 title: const Text('Lưu ảnh vào Clipboard'),
-                subtitle: const Text('Copy ảnh vào bộ nhớ tạm ngay sau khi scan'),
+                subtitle: const Text(
+                  'Copy ảnh vào bộ nhớ tạm ngay sau khi scan',
+                ),
                 value: settingsProvider.saveImageToClipboard,
                 onChanged: (val) {
                   settingsProvider.setSaveImageToClipboard(val);
@@ -58,8 +58,9 @@ class SettingsPage extends StatelessWidget {
               ),
               SwitchListTile(
                 title: const Text('Lưu đường dẫn PDF vào Clipboard'),
-                subtitle:
-                    const Text('Tự động copy đường dẫn file PDF sau khi lưu'),
+                subtitle: const Text(
+                  'Tự động copy đường dẫn file PDF sau khi lưu',
+                ),
                 value: settingsProvider.savePdfPathToClipboard,
                 onChanged: (val) {
                   settingsProvider.setSavePdfPathToClipboard(val);

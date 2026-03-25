@@ -25,7 +25,7 @@ class GalleryService {
         await Gal.putImage(path);
         debugPrint('Saved to gallery: $path');
       }
-      
+
       debugPrint('All images saved to gallery successfully.');
     } catch (e) {
       debugPrint('Error saving images to gallery: $e');

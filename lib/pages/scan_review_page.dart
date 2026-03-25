@@ -32,6 +32,16 @@ class ScanReviewPage extends StatefulWidget {
 
 class _ScanReviewPageState extends State<ScanReviewPage> {
   bool _isSaving = false;
+  bool _hasAutoSaved = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-save session to history when landing on this page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoSaveToHistory();
+    });
+  }
 
   Future<void> _exportPdf() async {
     final settingsProvider = context.read<SettingsProvider>();
@@ -71,7 +81,7 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
         final fileName =
             'ScannerVision_${DateTime.now().millisecondsSinceEpoch}.pdf';
         final savedPath = await PdfService.saveAndCopyPdf(bytes, fileName);
-        
+
         // Open the file immediately
         await PdfService.openFile(savedPath);
 
@@ -88,9 +98,9 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi khi xuất PDF: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Lỗi khi xuất PDF: $e')));
         }
       } finally {
         if (mounted) setState(() => _isSaving = false);
@@ -98,31 +108,17 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
     }
   }
 
-  Future<void> _saveToHistory() async {
-    setState(() => _isSaving = true);
+  Future<void> _autoSaveToHistory() async {
+    if (_hasAutoSaved) return;
+
+    // We don't set _isSaving to true here because we don't want to block the UI
+    // for a background auto-save.
     try {
       await context.read<SessionProvider>().saveSession(widget.session);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã lưu vào lịch sử!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        if (widget.isEmbedded && widget.onDone != null) {
-          widget.onDone!();
-        } else {
-          Navigator.pop(context, true); // Return true to indicate saved
-        }
-      }
+      _hasAutoSaved = true;
+      debugPrint('Session auto-saved to history: ${widget.session.id}');
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi khi lưu: $e')));
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
+      debugPrint('Error auto-saving session: $e');
     }
   }
 
@@ -153,20 +149,24 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.all(24.0),
-                        child: Card(
-                          elevation: 8,
-                          shadowColor: Colors.black26,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.file(
-                              File(widget.session.imagePaths[index]),
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ).animate().fade(duration: 500.ms).scale(
-                              begin: const Offset(0.9, 0.9),
-                              curve: Curves.easeOutBack,
-                            ),
+                        child:
+                            Card(
+                                  elevation: 8,
+                                  shadowColor: Colors.black26,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Image.file(
+                                      File(widget.session.imagePaths[index]),
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                )
+                                .animate()
+                                .fade(duration: 500.ms)
+                                .scale(
+                                  begin: const Offset(0.9, 0.9),
+                                  curve: Curves.easeOutBack,
+                                ),
                       );
                     },
                   ),
@@ -188,8 +188,9 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
                 Builder(
                   builder: (context) {
                     final isCccd = widget.session.type == 'cccd';
-                    final isPartialCccd = isCccd && widget.session.imagePaths.length < 2;
-                    
+                    final isPartialCccd =
+                        isCccd && widget.session.imagePaths.length < 2;
+
                     if (isPartialCccd) {
                       return ElevatedButton.icon(
                         onPressed: _isSaving
@@ -211,7 +212,7 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
                         ),
                       );
                     }
-                    
+
                     return ElevatedButton.icon(
                       onPressed: _isSaving ? null : _exportPdf,
                       icon: const Icon(Icons.picture_as_pdf),
@@ -225,21 +226,12 @@ class _ScanReviewPageState extends State<ScanReviewPage> {
                   },
                 ).animate().slideY(begin: 0.2, duration: 400.ms).fade(),
                 const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: _isSaving ? null : _saveToHistory,
-                  icon: const Icon(Icons.history),
-                  label: const Text('LƯU VÀO LỊCH SỬ'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ).animate().slideY(begin: 0.3, duration: 500.ms).fade(),
-                const SizedBox(height: 12),
                 TextButton(
                   onPressed: _isSaving
                       ? null
                       : (widget.isEmbedded && widget.onCancel != null
-                          ? widget.onCancel
-                          : () => Navigator.pop(context)),
+                            ? widget.onCancel
+                            : () => Navigator.pop(context)),
                   child: const Text('Hủy bỏ'),
                 ),
               ],
