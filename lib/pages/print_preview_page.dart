@@ -42,6 +42,11 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
     if (_autoScale) {
       _imageScale = 1.5;
     }
+
+    if (widget.isCccd) {
+      _imagesPerPage = 8;
+      _isLandscape = false;
+    }
   }
 
   void _showSettings() {
@@ -137,9 +142,9 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                       ],
                       // Images per page
                       _buildSectionTitle('Số ảnh trên 1 trang'),
-                      Wrap(
-                        spacing: 8,
-                        children: [1, 2, 4, 6, 9].map((count) {
+                        Wrap(
+                          spacing: 8,
+                          children: [1, 2, 4, 6, 8, 9].map((count) {
                           final isSelected = _imagesPerPage == count;
                           return ChoiceChip(
                             label: Text('$count ảnh'),
@@ -240,7 +245,7 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
       ),
       body: PdfPreview(
         build: (format) async {
-          if (widget.isCccd) {
+          if (widget.isCccd && _imagesPerPage <= 2) {
             return await PdfService.generateCCCDPdfBytes(
               format,
               widget.imagePaths,
@@ -291,7 +296,7 @@ class _PrintPreviewPageState extends State<PrintPreviewPage> {
                 child: FilledButton.icon(
                   onPressed: () async {
                     final format = PdfPageFormat.a4;
-                    final bytes = widget.isCccd
+                    final bytes = (widget.isCccd && _imagesPerPage <= 2)
                         ? await PdfService.generateCCCDPdfBytes(
                             format,
                             widget.imagePaths,

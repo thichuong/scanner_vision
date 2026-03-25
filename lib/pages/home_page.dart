@@ -86,14 +86,14 @@ class _HomePageState extends State<HomePage> {
 
     final allImagePaths =
         selectedSessions.expand((s) => s.imagePaths).toList();
-    final isAnyCccd = selectedSessions.any((s) => s.type == 'cccd');
+    final allCccd = selectedSessions.every((s) => s.type == 'cccd');
 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PrintPreviewPage(
           imagePaths: allImagePaths,
-          isCccd: isAnyCccd && selectedSessions.length == 1, // Layout CCCD chỉ khi chọn 1 session CCCD
+          isCccd: allCccd,
           isVertical: true,
         ),
       ),

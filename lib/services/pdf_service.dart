@@ -156,6 +156,12 @@ class PdfService {
               mainAxisCount = currentPageFormat.width > currentPageFormat.height
                   ? 2
                   : 3;
+            } else if (imagesPerPage == 8) {
+              crossAxisCount =
+                  currentPageFormat.width > currentPageFormat.height ? 4 : 2;
+              mainAxisCount = currentPageFormat.width > currentPageFormat.height
+                  ? 2
+                  : 4;
             } else if (imagesPerPage == 9) {
               crossAxisCount = 3;
               mainAxisCount = 3;
