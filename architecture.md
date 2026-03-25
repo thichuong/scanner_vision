@@ -6,7 +6,7 @@ Scanner Vision được thiết kế theo kiến trúc phân lớp nhằm chia t
 
 Ứng dụng tuân thủ mô hình 3 lớp cơ bản:
 
-1.  **UI Layer (Presentation)**: Các Flutter Widgets và Pages (Material 3) trong `lib/pages/`.
+1.  **UI Layer (Presentation)**: Các Flutter Widgets và Pages (Material 3) trong `lib/pages/`. `HomePage` sử dụng `StatefulWidget` để quản lý trạng thái chọn nhiều (multi-selection) và lọc (filtering).
 2.  **State Management Layer**: Sử dụng `Provider` để quản lý trạng thái tập trung (`lib/providers/`):
     - `SettingsProvider`: Quản lý cấu hình người dùng.
     - `SessionProvider`: Quản lý danh sách các phiên quét.
@@ -43,7 +43,10 @@ Chịu trách nhiệm tương tác với Google ML Kit.
 
 ### 2. PdfService
 Thành phần then chốt trong việc tạo ra và quản lý tệp PDF.
-- **Orientation Control**: Hỗ trợ xuất PDF theo cả hướng Dọc (Portrait) và Ngang (Landscape).
+- **Enhanced PDF Generation**:
+    - **Auto-rotate**: Tự động xoay trang dựa trên kích thước ảnh (Portrait/Landscape).
+    - **Auto-scale**: Căn chỉnh ảnh theo tỉ lệ chuẩn (Fit-to-page).
+    - **N-up Layout**: Hỗ trợ ghép nhiều ảnh trên một trang (Grid view).
 - **Automation Flow**: 
     - Tự động lưu vào thư mục `Pictures/Scanner Vision`.
     - Tự động sao chép đường dẫn file vào Clipboard (tùy chọn trong Cài đặt).

@@ -45,6 +45,8 @@ description: Flutter and Dart rules for this document scanner project
    - Dùng `PdfService.openFile` để kích hoạt trình xem file hệ thống sau khi lưu thành công.
    - Sử dụng `ClipboardService.copyImagesToClipboard` (từ `pasteboard`) để tự động copy ảnh scan vào clipboard dưới dạng binary.
    - Sử dụng `GalleryService.saveImagesToGallery` (từ `gal`) để tự động lưu ảnh vào thư viện thiết bị.
+   - **Tự động lưu lịch sử**: Các phiên quét phải được tự động lưu vào `StorageService` ngay khi hoàn tất (không yêu cầu người dùng nhấn nút lưu thủ công).
+   - **Cấu hình PDF mặc định**: Ưu tiên sử dụng `autoRotate: true` và thuật toán `Fit-to-page` trong `PdfService` để đảm bảo kết quả tốt nhất.
    - **Lưu ý Android**: `AndroidManifest.xml` phải cấu hình `FileProvider` với authority `${applicationId}.provider` để `pasteboard` hoạt động chính xác.
 ## 8. **Testing**:
    - Thêm unit tests trong thư mục `test/`.
